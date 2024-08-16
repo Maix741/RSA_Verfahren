@@ -1,5 +1,7 @@
-from RSA_KEY_generate import generate_Keys, write_Keys
+from RSA_KEY_generate import generate_Keys, write_Keys, create_Public_Private
 from tkinter import filedialog
+import os, sys
+import time
 
 
 class RSA_Verfahren:
@@ -9,21 +11,24 @@ class RSA_Verfahren:
         2. Entschlüsseln -> "ent", "entschlüsseln"
         3. Schlüssel aufteilen -> "split_keys"
         4. Neue Schlüssel generieren -> "generate_keys"
-        5. Schlüssel neu auswählen -> "choose_key"
+        5. Schlüsseldatei neu auswählen -> "choose_key"
+        6. Verschlüsselungen speichern(erhöht geschwindigkeit) -> "speichern"
         """
         print(self.Optionen)
+        self.Verschlüsselung_dict = {}
         self.D, self.E, self.n = self.load_key(dialog)
 
 
     def Get_mode(self) -> bool:
         modi = [
-            "ver", "ent",                                                 # RSA Richtig (Abkürzungen) (0-1)
-            "verschlüsseln", "entschlüsseln",                             # RSA Richtig (2-3)
-            "generate_keys", "read_keys", "split_keys", "choose_key", "read"      # RSA Zusatz  (4-7)
+            "ver", "ent",                                                              # RSA Richtig (Abkürzungen) (0-1)
+            "verschlüsseln", "entschlüsseln",                                          # RSA Richtig (2-3)
+            "generate_keys", "split_keys", "choose_key", "speichern", "read_keys"      # RSA Zusatz  (4-8)
             ]
 
-        Modus = input("Modus: ").lower().replace(" ", "")
+        Modus = input(f"Modus(oder {"quit"}): ").lower().replace(" ", "")
 
+        # check if Mode is valid or quit
         if Modus == "q" or Modus == "quit":
             return False
 
@@ -31,26 +36,42 @@ class RSA_Verfahren:
             return True
 
 
+        # verschlüsseln, ver
         if Modus == modi[0] or Modus == modi[2]:
             VerText = self.verschlüsseln_Text()
             print(VerText)# TODO: Mehr mit Text machen
-            return True
 
 
+        # entschlüsseln, ent
         if Modus == modi[1] or Modus == modi[3]:
             EntText = self.Entschlüsseln_Text()
             print(EntText)# TODO: Mehr mit Text machen
-            return True
+            Zeit = time.time() - self.Start
 
+
+        # generate_keys
         if Modus == modi[4]:
             _, _, self.n, self.E, self.D = generate_Keys()
             write_Keys(_, _, self.n, self.E, self.D)
 
-        if Modus == modi[7]:
-            self.__init__(True)
+        if Modus == modi[6]:
+            create_Public_Private()
 
+        # choose_key
+        if Modus == modi[6]:
+            self.__init__(True)
+            self.Verschlüsselung_dict = {}
+            if input("Speichern?(y/n): ").lower() == "y":
+                self.create_Ver_dictionary()
+
+        # read_keys
         if Modus == modi[8]:
-            print(self.D, self.E, self.n)
+            print(self.D, self.E, self.n, "D, E, n")
+
+        # speichern
+        if Modus == modi[7]:
+            print("Verschlüsselungen werden zwischengespeichert")
+            self.create_Ver_dictionary()
 
         return True
     
@@ -59,10 +80,23 @@ class RSA_Verfahren:
         return Text ** S % n
 
 
+    def create_Ver_dictionary(self) -> dict:
+        Buchstaben = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ü", "ä", "ö",
+                      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Ü", "Ä", "Ö",
+                       " ", ",", ".", "!", "?"]
+        Verschlüsselungen = []
+        for Buchstabe in Buchstaben:
+            Verschlüsselungen.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
+
+        for Buch, verschlüsselung in zip(Buchstaben, Verschlüsselungen):
+            self.Verschlüsselung_dict[verschlüsselung] = Buch
+        Verschlüsselungen.clear()
+
+
     def load_key(self, dialog: bool = False) -> int:
         file = "KEYS/Key.txt"
         if dialog:
-            file = filedialog.askopenfilename()
+            file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 file = "KEYS/Key.txt"
 
@@ -97,10 +131,10 @@ class RSA_Verfahren:
                 if Zahl.isdigit():
                     if int(Zahl) < int(self.n):
                         continue
-                print("Error")
+                print(f"\nValueError: Input muss eine Liste von ints unter {self.n} sein!")
                 return [0]
             return Text
-        print("Error")
+        print(f"\nValueError: Input muss eine Liste von ints unter {self.n} sein!")
         return [0]
 
 
@@ -117,13 +151,30 @@ class RSA_Verfahren:
     def Entschlüsseln_Text(self):
         Text = self.get_Text_Ent()
         NeuText = ""
-        for Zahl in Text:
-            NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
-        return NeuText
+        self.Start = time.time()
+        if not self.Verschlüsselung_dict:
+            for Zahl in Text:
+                NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
+            return NeuText
+
+        elif self.Verschlüsselung_dict:
+            print("Dictionary erkannt")
+            for Zahl in Text:
+                Buch = str(self.Verschlüsselung_dict.get(int(Zahl)))
+                if Buch == "None":
+                    Buch = chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
+
+                NeuText += Buch
+
+            return NeuText
 
 
 if __name__ == "__main__":
-    Programm = RSA_Verfahren(True)
+    Programm = RSA_Verfahren()
     running = True
     while running:
         running = Programm.Get_mode()
+
+# Geschwindigkeit für 100 Wörter Lorem Ipsum
+    # Ohne dictionary: 219.78877234458923 Sekunden
+    # Mit dictionary: 0.0009968280792236328

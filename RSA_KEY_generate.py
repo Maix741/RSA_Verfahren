@@ -1,5 +1,5 @@
 import random, os, sys
-# from RSA_Geteilt.RSA_Key_split import create_Public_Private
+from RSA_Geteilt.RSA_Key_split import create_Public_Private
 
 def get_p_q() -> int:
     # get p, q
