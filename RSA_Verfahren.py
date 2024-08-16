@@ -5,7 +5,9 @@ import time
 
 
 class RSA_Verfahren:
-    def __init__(self, dialog: bool = False, speichern: bool = False) -> None:
+    """Klasse mit Funktionen zum Ver-\n
+      und Entschlüsseln mit dem RSA Verfahren"""
+    def __init__(self, dialog: bool = False, speichern: bool = True) -> None:
         self.Optionen = """Verfügbare Optionen:
         1. Verschlüsseln -> "ver", "verschlüsseln"
         2. Entschlüsseln -> "ent", "entschlüsseln", "ent_Datei"
@@ -43,7 +45,7 @@ class RSA_Verfahren:
         if Modus == modi[0] or Modus == modi[3]:
             VerText = self.verschlüsseln_Text()
             print(VerText)# TODO: Mehr mit Text machen
-            Zeit = (time.time() - self.Start_Ver)
+            Zeit = round(time.time() - self.Start_Ver, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
 
@@ -51,13 +53,13 @@ class RSA_Verfahren:
         if Modus == modi[1] or Modus == modi[4]:
             EntText = self.Entschlüsseln_Text()
             print(EntText)# TODO: Mehr mit Text machen
-            Zeit = (time.time() - self.Start_Ent)
+            Zeit = round(time.time() - self.Start_Ent, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
         elif Modus == modi[2]:
             EntText = self.Entschlüsseln_Datei()
             print(EntText)# TODO: Mehr mit Text machen
-            Zeit = (time.time() - self.Start_Ent_Datei)
+            Zeit = round(time.time() - self.Start_Ent_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
 
@@ -95,9 +97,14 @@ class RSA_Verfahren:
 
 
     def create_Ver_dictionary(self) -> None:
-        Buchstaben = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ü", "ä", "ö",
-                      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Ü", "Ä", "Ö",
-                      " ", ",", ";", ".", ":", "!", "?", '"', "'", "#", "*", "&"]
+        # Buchstaben = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ü", "ä", "ö",
+        #               "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Ü", "Ä", "Ö",
+        #               " ", ",", ";", ".", ":", "!", "?", '"', "'", "#", "*", "&"]
+        Buchstaben = []
+
+        for ascii in range(255):
+            Buchstaben.append(chr(ascii))
+
         Verschlüsselungen = []
         for Buchstabe in Buchstaben:
             Verschlüsselungen.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
@@ -170,7 +177,7 @@ class RSA_Verfahren:
 
     def Entschlüsseln_Text(self) -> str:
         Text = self.get_Text_Ent()
-        NeuText = ""
+        NeuText: str = ""
         self.Start_Ent = time.time()
         if not self.Verschlüsselung_dict:
             for Zahl in Text:
@@ -180,9 +187,9 @@ class RSA_Verfahren:
         elif self.Verschlüsselung_dict:
             print("Dictionary erkannt")
             for Zahl in Text:
-                Buch = str(self.Verschlüsselung_dict.get(int(Zahl)))
+                Buch: str = str(self.Verschlüsselung_dict.get(int(Zahl)))
                 if Buch == "None":
-                    Buch = chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
+                    Buch: str = chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
                 NeuText += Buch
 
@@ -197,7 +204,7 @@ class RSA_Verfahren:
                 Text = File.read()
                 File.close()
         except FileNotFoundError:
-            return f"\nValueError: Kein Input erkannt!"
+            return f"\nValueError: Keine Datei erkannt!"
         if Text:
             Text = Text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
             for Zahl in Text:
