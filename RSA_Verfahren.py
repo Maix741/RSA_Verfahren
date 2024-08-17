@@ -237,10 +237,10 @@ if __name__ == "__main__":
     while running:
         running = Programm.Get_mode()
 
+
 # Geschwindigkeit für 100 Wörter Lorem Ipsum:
     # Ohne dictionary: 219.78877234458923 Sekunden
     # Mit dictionary: 0.0009968280792236328 Sekunden
-
 
 # Geschwindigkeit für 1000 Wörter Lorem Ipsum:
     # Ohne dictionary: 2236.4441187381744 Sekunden
