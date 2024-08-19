@@ -166,3 +166,5 @@ cython_debug/
 *PRIVATE.txt
 test/
 !RSA_KEY.txt
+/delete_Keys.py
+/.gitignore
