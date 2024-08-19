@@ -71,7 +71,7 @@ def get_Primzahlen(Start: int, Ende: int) -> list:
 
 
 def write_Keys(p: int, q: int, n: int, E: int, D: int) -> None:
-    with open(os.path.realpath(os.path.realpath(os.path.dirname(sys.argv[0]))) + "/KEYS//RSA_KEY.txt", "w") as KEYS_Datei:
+    with open(os.path.realpath(os.path.realpath(os.path.dirname(sys.argv[0]))) + "/KEYS//RSA_Key.txt", "w") as KEYS_Datei:
         KEYS_Datei.truncate()
         # KEYS_Datei.write(str(p) + "\n" + str(q) + "\n" + str(n) + "\n" + str(E) + "\n" + str(D) + "\n" + "\n" + "# erst p, q, n, E, D")
         KEYS_Datei.write(str(p) + "\n")

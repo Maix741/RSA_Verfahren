@@ -9,7 +9,7 @@ class RSA_Verfahren:
       und Entschlüsseln mit dem RSA Verfahren"""
     def __init__(self, dialog: bool = False, speichern: bool = True) -> None:
         self.Optionen = """Verfügbare Optionen:
-        1. Verschlüsseln -> "ver", "verschlüsseln"
+        1. Verschlüsseln -> "ver", "verschlüsseln", "ver_Datei
         2. Entschlüsseln -> "ent", "entschlüsseln", "ent_Datei"
         3. Schlüssel aufteilen -> "split_keys"
         4. Neue Schlüssel generieren -> "generate_keys"
@@ -25,9 +25,9 @@ class RSA_Verfahren:
 
     def Get_mode(self) -> bool:
         modi = [
-            "ver", "ent", "ent_datei",                                                 # RSA Richtig (Abkürzungen) (0-2)
-            "verschlüsseln", "entschlüsseln",                                          # RSA Richtig (3-4)
-            "generate_keys", "split_keys", "choose_key", "speichern", "read_keys"      # RSA Zusatz  (5-9)
+            "ver", "ent", "ent_datei", "ver_datei",                                    # RSA Richtig (Abkürzungen) (0-3)
+            "verschlüsseln", "entschlüsseln",                                          # RSA Richtig (4-5)
+            "generate_keys", "split_keys", "choose_key", "speichern", "read_keys"      # RSA Zusatz  (6-10)
             ]
 
         Modus = input('Modus(oder "quit"): ').lower().replace(" ", "")
@@ -42,15 +42,21 @@ class RSA_Verfahren:
 
 
         # verschlüsseln, ver
-        if Modus == modi[0] or Modus == modi[3]:
+        if Modus == modi[0] or Modus == modi[4]:
             VerText = self.verschlüsseln_Text()
             print(VerText)# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ver, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
+        elif Modus == modi[3]:
+            VerText = self.Verschlüsseln_Datei()
+            print(VerText)# TODO: Mehr mit Text machen
+            Zeit = round(time.time() - self.Start_Ver_Datei, 2)
+            print(f"Zeit zum Entschlüsseln: {Zeit}")
+
 
         # entschlüsseln, ent
-        if Modus == modi[1] or Modus == modi[4]:
+        if Modus == modi[1] or Modus == modi[5]:
             EntText = self.Entschlüsseln_Text()
             print(EntText)# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ent, 2)
@@ -64,28 +70,28 @@ class RSA_Verfahren:
 
 
         # generate_keys
-        if Modus == modi[5]:
+        if Modus == modi[6]:
             _, _, self.n, self.E, self.D = generate_Keys()
             write_Keys(_, _, self.n, self.E, self.D)
 
         # split_keys
-        if Modus == modi[6]:
+        if Modus == modi[7]:
             create_Public_Private()
 
         # choose_key
-        if Modus == modi[7]:
+        if Modus == modi[8]:
             self.__init__(True)
             self.Verschlüsselung_dict = {}
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
         # speichern
-        if Modus == modi[8]:
+        if Modus == modi[9]:
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
             
         # read_keys
-        if Modus == modi[9]:
+        if Modus == modi[10]:
             print(f"{self.D}, {self.E}, {self.n}\t# D, E, n")
 
 
@@ -115,11 +121,11 @@ class RSA_Verfahren:
 
 
     def load_key(self, dialog) -> int:
-        file = "KEYS/Key.txt"
+        file = "KEYS/RSA_Key.txt"
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
-                file = "KEYS/Key.txt"
+                file = "KEYS/RSA_Key.txt"
 
         Keys = []
         try:
@@ -229,6 +235,26 @@ class RSA_Verfahren:
                 NeuText += Buch
 
             return NeuText
+
+
+    def Verschlüsseln_Datei(self) -> str:
+        file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"),("All Files", "*.*")], title="Datei auswählen")
+        self.Start_Ver_Datei = time.time()
+        try:
+            with open(file, "r") as File:
+                Text = File.read()
+                File.close()
+        except FileNotFoundError:
+            return f"\nFileNotFoundError: Keine Datei erkannt!"
+
+        if not Text:
+            return f"\nValueError Datei hat keinen verschlüsselbaren Inhalt!"
+
+        NeuText = []
+        for Buchstabe in Text:
+            NeuText.append(self.Ver_oder_Entschlüsseln(int(ord(Buchstabe)), int(self.E), int(self.n)))
+
+        return NeuText
 
 
 if __name__ == "__main__":
