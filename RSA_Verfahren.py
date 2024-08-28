@@ -45,13 +45,13 @@ class RSA_Verfahren:
         # verschlüsseln, ver
         if Modus == modi[0] or Modus == modi[4]:
             VerText = self.verschlüsseln_Text()
-            print("\n" + VerText + "\n")# TODO: Mehr mit Text machen
+            print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ver, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
         elif Modus == modi[3]:
             VerText = self.Verschlüsseln_Datei()
-            print("\n" + VerText + "\n")# TODO: Mehr mit Text machen
+            print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ver_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
@@ -59,13 +59,13 @@ class RSA_Verfahren:
         # entschlüsseln, ent
         if Modus == modi[1] or Modus == modi[5]:
             EntText = self.Entschlüsseln_Text()
-            print("\n" + EntText+ "\n")# TODO: Mehr mit Text machen
+            print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ent, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
         elif Modus == modi[2]:
             EntText = self.Entschlüsseln_Datei()
-            print("\n" + EntText+ "\n")# TODO: Mehr mit Text machen
+            print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ent_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
@@ -81,7 +81,7 @@ class RSA_Verfahren:
 
         # choose_key
         if Modus == modi[8]:
-            self.__init__(True)
+            self.__init__(True, False)
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 

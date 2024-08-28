@@ -19,14 +19,12 @@ def create_Public_Private():
 def write_Public(n: int, E: int) -> None:
     if str(os.path.dirname(sys.argv[0])).endswith("RSA_Geteilt"):
         with open(os.path.dirname(sys.argv[0]) + "/PUBLIC/RSA_Key_PUBLIC.txt", "w") as Public:
-            Public.truncate()
             Public.write(str(n) + "\n" + str(E) + "\n" + "\n" + "# erst n, E")
             Public.close()
 
 
     elif str(os.path.dirname(sys.argv[0])).endswith("RSA_Verfahren"):
         with open(os.path.dirname(sys.argv[0]) + "/RSA_Geteilt/PUBLIC/RSA_Key_PUBLIC.txt", "w") as Public:
-            Public.truncate()
             Public.write(str(n) + "\n" + str(E) + "\n" + "\n" + "# erst n, E")
             Public.close()
 
@@ -34,14 +32,12 @@ def write_Public(n: int, E: int) -> None:
 def write_Privat(n: int, D: int) -> None:
     if str(os.path.dirname(sys.argv[0])).endswith("RSA_Geteilt"):
         with open(os.path.dirname(sys.argv[0]) + "/PRIVATE/RSA_Key_PRIVATE.txt", "w") as Private:
-            Private.truncate()
             Private.write(str(n) + "\n" + str(D) + "\n" + "\n" + "# erst n, D")
             Private.close()
 
 
     elif str(os.path.dirname(sys.argv[0])).endswith("RSA_Verfahren"):
         with open(os.path.dirname(sys.argv[0]) + "/RSA_Geteilt/PRIVATE/RSA_Key_PRIVATE.txt", "w") as Private:
-            Private.truncate()
             Private.write(str(n) + "\n" + str(D) + "\n" + "\n" + "# erst n, D")
             Private.close()
 
