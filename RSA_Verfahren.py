@@ -18,6 +18,7 @@ class RSA_Verfahren:
         """
         print(self.Optionen)
         self.Verschlüsselung_dict = {}
+        self.swapped = False
         self.D, self.E, self.n = self.load_key(dialog)
         if speichern:
             self.create_Ver_dictionary()
@@ -27,7 +28,7 @@ class RSA_Verfahren:
         modi = [
             "ver", "ent", "ent_datei", "ver_datei",                                    # RSA Richtig (Abkürzungen) (0-3)
             "verschlüsseln", "entschlüsseln",                                          # RSA Richtig (4-5)
-            "generate_keys", "split_keys", "choose_key", "speichern", "read_keys"      # RSA Zusatz  (6-10)
+            "generate_keys", "split_keys", "choose_key", "speichern", "read_keys", "swap_keys"      # RSA Zusatz  (6-10)
             ]
 
         Modus = input('Modus(oder "quit"): ').lower().replace(" ", "")
@@ -44,13 +45,13 @@ class RSA_Verfahren:
         # verschlüsseln, ver
         if Modus == modi[0] or Modus == modi[4]:
             VerText = self.verschlüsseln_Text()
-            print(VerText)# TODO: Mehr mit Text machen
+            print("\n" + VerText + "\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ver, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
         elif Modus == modi[3]:
             VerText = self.Verschlüsseln_Datei()
-            print(VerText)# TODO: Mehr mit Text machen
+            print("\n" + VerText + "\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ver_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
@@ -58,21 +59,21 @@ class RSA_Verfahren:
         # entschlüsseln, ent
         if Modus == modi[1] or Modus == modi[5]:
             EntText = self.Entschlüsseln_Text()
-            print(EntText)# TODO: Mehr mit Text machen
+            print("\n" + EntText+ "\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ent, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
         elif Modus == modi[2]:
             EntText = self.Entschlüsseln_Datei()
-            print(EntText)# TODO: Mehr mit Text machen
+            print("\n" + EntText+ "\n")# TODO: Mehr mit Text machen
             Zeit = round(time.time() - self.Start_Ent_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
 
         # generate_keys
         if Modus == modi[6]:
-            _, _, self.n, self.E, self.D = generate_Keys()
-            write_Keys(_, _, self.n, self.E, self.D)
+            p, q, self.n, self.E, self.D = generate_Keys()
+            write_Keys(p, q, self.n, self.E, self.D)
 
         # split_keys
         if Modus == modi[7]:
@@ -81,7 +82,6 @@ class RSA_Verfahren:
         # choose_key
         if Modus == modi[8]:
             self.__init__(True)
-            self.Verschlüsselung_dict = {}
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
@@ -93,6 +93,10 @@ class RSA_Verfahren:
         # read_keys
         if Modus == modi[10]:
             print(f"{self.D}, {self.E}, {self.n}\t# D, E, n")
+
+        if Modus == modi[11]:
+            self.swapped = True
+            self.E, self.D = self.D, self.E
 
 
         return True
@@ -125,6 +129,8 @@ class RSA_Verfahren:
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
+                if input("Schlüssel generieren?(y/n): ") == "y":
+                    generate_Keys()
                 file = "KEYS/RSA_Key.txt"
 
         Keys = []
@@ -185,20 +191,20 @@ class RSA_Verfahren:
         Text = self.get_Text_Ent()
         NeuText: str = ""
         self.Start_Ent = time.time()
-        if not self.Verschlüsselung_dict:
-            for Zahl in Text:
-                NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
-            return NeuText
 
-        elif self.Verschlüsselung_dict:
-            print("Dictionary erkannt")
+        if self.Verschlüsselung_dict:
             for Zahl in Text:
                 Buch: str = str(self.Verschlüsselung_dict.get(int(Zahl)))
                 if Buch == "None":
                     Buch: str = chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
                 NeuText += Buch
+            return NeuText
 
+        elif not self.Verschlüsselung_dict:
+            print("Verschlüsselungen nicht zwischengespeichert!")
+            for Zahl in Text:
+                NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
             return NeuText
 
 
@@ -264,10 +270,19 @@ if __name__ == "__main__":
         running = Programm.Get_mode()
 
 
-# Geschwindigkeit für 100 Wörter Lorem Ipsum:
+# Geschwindigkeit Entschlüsseln für 100 Wörter Lorem Ipsum:
     # Ohne dictionary: 219.78877234458923 Sekunden
     # Mit dictionary: 0.0009968280792236328 Sekunden
 
-# Geschwindigkeit für 1000 Wörter Lorem Ipsum:
+# Geschwindigkeit Entschlüsseln für 1000 Wörter Lorem Ipsum:
     # Ohne dictionary: 2236.4441187381744 Sekunden
     # Mit dictionary: 0.008044004440307617 Sekunden
+
+
+# Geschwindigkeit Verschlüsseln für 100 Wörter Lorem Ipsum:
+    # Ohne dictionary: Sekunden
+    # Mit dictionary:  Sekunden
+
+# Geschwindigkeit Verschlüsseln für 1000 Wörter Lorem Ipsum:
+    # Ohne dictionary: Sekunden
+    # Mit dictionary:  Sekunden
