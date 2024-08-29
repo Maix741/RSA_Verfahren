@@ -8,7 +8,7 @@ import time
 class RSA_Verfahren:
     """Klasse mit Funktionen zum Ver-\n
       und Entschlüsseln mit dem RSA Verfahren"""
-    def __init__(self, dialog: bool = False, speichern: bool = True) -> None:
+    def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200) -> None:
         self.Optionen = """Verfügbare Optionen:
         1. Verschlüsseln -> "ver", "verschlüsseln", "ver_Datei
         2. Entschlüsseln -> "ent", "entschlüsseln", "ent_Datei"
@@ -18,6 +18,7 @@ class RSA_Verfahren:
         6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "speichern"
         """
         print(self.Optionen)
+        self.FileThreshhold = FileThreshhold
         self.Verschlüsselung_dict = {}
         self.swapped = False
         self.D, self.E, self.n = self.load_key(dialog)
@@ -194,6 +195,10 @@ class RSA_Verfahren:
         NeuText = []
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
+
+        if len(NeuText) > self.FileThreshhold:
+            if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
+                self.Output_in_Datei_speichern(NeuText, "Ver")
         return NeuText
 
 
@@ -209,12 +214,15 @@ class RSA_Verfahren:
                     Buch: str = chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
                 NeuText += Buch
-            return NeuText
 
         elif not self.Verschlüsselung_dict:
             print("Verschlüsselungen nicht zwischengespeichert!")
             for Zahl in Text:
                 NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
+
+        if len(NeuText) > self.FileThreshhold:
+            if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
+                self.Output_in_Datei_speichern(NeuText, "Ent")
             return NeuText
 
 
@@ -239,7 +247,6 @@ class RSA_Verfahren:
         if not self.Verschlüsselung_dict:
             for Zahl in Text:
                 NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
-            return NeuText
 
         elif self.Verschlüsselung_dict:
             print("Dictionary erkannt")
@@ -250,7 +257,10 @@ class RSA_Verfahren:
 
                 NeuText += Buch
 
-            return NeuText
+        if len(NeuText) > self.FileThreshhold:
+            if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
+                self.Output_in_Datei_speichern(NeuText, "Ent")
+        return NeuText
 
 
     def Verschlüsseln_Datei(self) -> str:
@@ -270,7 +280,19 @@ class RSA_Verfahren:
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(int(ord(Buchstabe)), int(self.E), int(self.n)))
 
+        if len(NeuText) > self.FileThreshhold:
+            if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
+                self.Output_in_Datei_speichern(NeuText, "Ver")
+
         return NeuText
+
+
+    def Output_in_Datei_speichern(self, Text, Art: str = "RSA"):
+        DateiName = f"{Art}schlüsselter Text Output.txt"
+        currentDir = os.path.dirname(sys.argv[0])
+        with open(os.path.join(currentDir, DateiName), "a") as Output_File:
+            Output_File.write(Text)
+            Output_File.close()
 
 
 if __name__ == "__main__":
