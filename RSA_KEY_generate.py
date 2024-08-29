@@ -1,4 +1,4 @@
-from RSA_Geteilt.RSA_Key_split import create_Public_Private
+from RSA_Key_split import create_Public_Private
 import random, os, sys
 import time
 
