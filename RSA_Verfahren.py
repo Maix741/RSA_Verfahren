@@ -28,7 +28,7 @@ class RSA_Verfahren:
         modi = [
             "ver", "ent", "ent_datei", "ver_datei",                                    # RSA Richtig (Abkürzungen) (0-3)
             "verschlüsseln", "entschlüsseln",                                          # RSA Richtig (4-5)
-            "generate_keys", "split_keys", "choose_key", "speichern", "read_keys", "swap_keys"      # RSA Zusatz  (6-10)
+            "generate_keys", "split_keys", "choose_key", "speichern", "swap_keys"      # RSA Zusatz  (6-10)
             ]
 
         Modus = input('Modus(oder "quit"): ').lower().replace(" ", "")
@@ -89,21 +89,23 @@ class RSA_Verfahren:
         if Modus == modi[9]:
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
-            
-        # read_keys
-        if Modus == modi[10]:
-            print(f"{self.D}, {self.E}, {self.n}\t# D, E, n")
 
-        if Modus == modi[11]:
-            self.swapped = True
+        if Modus == modi[10]:
+            if not self.swapped:
+                self.swapped = True
+                print("Öffentlicher und Privater Schlüssel getauscht!")
+
+            elif self.swapped:
+                self.swapped = False
+                print("Öffentlicher und Privater Schlüssel wiederhergestellt!")
             self.E, self.D = self.D, self.E
 
 
         return True
 
 
-    def Ver_oder_Entschlüsseln(self, Text: int, S: int, n: int) -> int:
-        return Text ** S % n
+    def Ver_oder_Entschlüsseln(self, Text: int, Schlüssel: int, n: int) -> int:
+        return Text ** Schlüssel % n
 
 
     def create_Ver_dictionary(self) -> None:
