@@ -1,4 +1,5 @@
-import random, os, sys
+import os, sys
+import random
 import time
 
 
@@ -22,6 +23,7 @@ class Generate_Keys:
         d = self.get_D(m, e)
 
         return p, q, n, e, d
+
 
     def get_p_q(self) -> int:
         """get p, q"""
@@ -78,6 +80,7 @@ class Generate_Keys:
         print("D generiert!")
         return d
 
+
     def get_Primzahlen(self, Ende: int) -> list:
         """alle primzahlen in Bereich ausgeben"""
         primzahlen = []
@@ -95,6 +98,7 @@ class Generate_Keys:
 
         return primzahlen
 
+
     def write_Keys(self, p: int, q: int, n: int, e: int, d: int) -> None:
         with open(fr"{os.getcwd()}\KEYS\RSA_Key.txt", "w") as Keys_Datei:
             Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# erst p, q, n, E, D")
@@ -110,10 +114,8 @@ if __name__ == "__main__":
     if input("Datei erstellen(y/n): ") == "y":
         Generator.write_Keys(p, q, n, E, D)
         from RSA_Key_split import Split_Keys
-        try:
-            Split_Keys().create_Public_Private()
-        except Exception as error:
-            print(f"Error: {error}")
+        Split_Keys().create_Public_Private()
+
 
 
 # Geschwindigkeit Primzahlen:
