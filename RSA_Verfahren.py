@@ -1,4 +1,5 @@
-from RSA_KEY_generate import generate_Keys, write_Keys, create_Public_Private
+from RSA_Key_generate import Generate_Keys
+from RSA_Key_split import Split_Keys
 from tkinter import filedialog
 import os, sys
 import time
@@ -72,12 +73,16 @@ class RSA_Verfahren:
 
         # generate_keys
         if Modus == modi[6]:
-            p, q, self.n, self.E, self.D = generate_Keys()
-            write_Keys(p, q, self.n, self.E, self.D)
+            Generator = Generate_Keys()
+            p, q, self.n, self.E, self.D = Generator.generate_keys()
+            if input("Datei erstellen(y/n): ") == "y":
+                Generate_Keys.write_Keys(p, q, self.n, self.E, self.D)
+                Split_Keys().create_Public_Private()
 
         # split_keys
         if Modus == modi[7]:
-            create_Public_Private()
+            Split_Keys().create_Public_Private()
+            print("Schlüssel erfolgreich aufgeteilt")
 
         # choose_key
         if Modus == modi[8]:
@@ -132,7 +137,10 @@ class RSA_Verfahren:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 if input("Schlüssel generieren?(y/n): ") == "y":
-                    generate_Keys()
+                    Generator = Generate_Keys()
+                    p, q, self.n, self.E, self.D = Generator.generate_keys()
+                    if input("Datei erstellen(y/n): ") == "y":
+                        Generator.write_Keys(p, q, self.n, self.E, self.D)
                 file = "KEYS/RSA_Key.txt"
 
         Keys = []
@@ -279,12 +287,3 @@ if __name__ == "__main__":
 # Geschwindigkeit Entschlüsseln für 1000 Wörter Lorem Ipsum:
     # Ohne dictionary: 2236.4441187381744 Sekunden
     # Mit dictionary: 0.008044004440307617 Sekunden
-
-
-# Geschwindigkeit Verschlüsseln für 100 Wörter Lorem Ipsum:
-    # Ohne dictionary: Sekunden
-    # Mit dictionary:  Sekunden
-
-# Geschwindigkeit Verschlüsseln für 1000 Wörter Lorem Ipsum:
-    # Ohne dictionary: Sekunden
-    # Mit dictionary:  Sekunden
