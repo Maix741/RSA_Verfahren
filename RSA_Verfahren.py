@@ -288,7 +288,7 @@ class RSA_Verfahren:
 
 
     def Output_in_Datei_speichern(self, Text, Art: str = "RSA"):
-        DateiName = f"{Art}schlüsselter Text Output.txt"
+        DateiName = f"{Art}schlüsselter Output.txt"
         currentDir = os.path.dirname(sys.argv[0])
         with open(os.path.join(currentDir, DateiName), "a") as Output_File:
             Output_File.write(Text)
