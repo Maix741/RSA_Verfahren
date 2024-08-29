@@ -223,7 +223,7 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
-            return NeuText
+        return NeuText
 
 
     def Entschlüsseln_Datei(self) -> str:
