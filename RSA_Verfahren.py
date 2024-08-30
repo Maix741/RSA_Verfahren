@@ -46,29 +46,29 @@ class RSA_Verfahren:
 
         # verschlüsseln, ver
         if Modus == modi[0] or Modus == modi[4]:
-            VerText = self.verschlüsseln_Text()
+            VerText, Zeit = self.verschlüsseln_Text()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
-            Zeit = round(time.time() - self.Start_Ver, 2)
+            # Zeit = round(time.time() - self.Start_Ver, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
         elif Modus == modi[3]:
-            VerText = self.Verschlüsseln_Datei()
+            VerText, Zeit = self.Verschlüsseln_Datei()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
-            Zeit = round(time.time() - self.Start_Ver_Datei, 2)
-            print(f"Zeit zum Entschlüsseln: {Zeit}")
+            # Zeit = round(time.time() - self.Start_Ver_Datei, 2)
+            print(f"Zeit zum Verschlüsseln: {Zeit}")
 
 
         # entschlüsseln, ent
         if Modus == modi[1] or Modus == modi[5]:
-            EntText = self.Entschlüsseln_Text()
+            EntText, Zeit = self.Entschlüsseln_Text()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
-            Zeit = round(time.time() - self.Start_Ent, 2)
+            # Zeit = round(time.time() - self.Start_Ent, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
         elif Modus == modi[2]:
-            EntText = self.Entschlüsseln_Datei()
+            EntText, Zeit = self.Entschlüsseln_Datei()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
-            Zeit = round(time.time() - self.Start_Ent_Datei, 2)
+            # Zeit = round(time.time() - self.Start_Ent_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
 
@@ -165,11 +165,13 @@ class RSA_Verfahren:
                 for Buchstabe in Text:
                     if ord(Buchstabe) < int(self.n):
                         continue
-                    return f"ValueError: Buchstabe größer als {self.n}"
+                    print(f"ValueError: Ascii des Buchstaben größer als {self.n}")
+                    return self.get_Text()
             except ValueError:
-                return "ValueError: Inkompatiebles Zeichen"
+                print("ValueError: Inkompatiebles Zeichen")
+                return self.get_Text()
             return Text
-        return "ValueError: Kein Text eingegeben"
+        return self.get_Text()
 
 
     def get_Text_Ent(self) -> list:
@@ -189,25 +191,26 @@ class RSA_Verfahren:
 
     def verschlüsseln_Text(self) -> list:
         Text = self.get_Text()
-        self.Start_Ver = time.time()
+        StartZeit = time.time()
         if Text.startswith("ValueError"):
             return Text
         NeuText = []
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
 
+        Zeit = round(StartZeit - time.time(), 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ver")
-                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", 
 
-        return NeuText
+        return NeuText, Zeit
 
 
     def Entschlüsseln_Text(self) -> str:
         Text = self.get_Text_Ent()
         NeuText: str = ""
-        self.Start_Ent = time.time()
+        StartZeit = time.time()
 
         if self.Verschlüsselung_dict:
             for Zahl in Text:
@@ -222,17 +225,18 @@ class RSA_Verfahren:
             for Zahl in Text:
                 NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
+        Zeit = round(StartZeit - time.time(), 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
                 return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
 
-        return NeuText
+        return NeuText, Zeit
 
 
     def Entschlüsseln_Datei(self) -> str:
         file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"),("All Files", "*.*")], title="Datei auswählen")
-        self.Start_Ent_Datei = time.time()
+        StartZeit = time.time()
         try:
             with open(file, "r") as File:
                 Text = File.read()
@@ -261,17 +265,18 @@ class RSA_Verfahren:
 
                 NeuText += Buch
 
+        Zeit = StartZeit - time.time()
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
                 return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
 
-        return NeuText
+        return NeuText, Zeit
 
 
     def Verschlüsseln_Datei(self) -> str:
         file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"),("All Files", "*.*")], title="Datei auswählen")
-        self.Start_Ver_Datei = time.time()
+        StartZeit = time.time()
         try:
             with open(file, "r") as File:
                 Text = File.read()
@@ -286,12 +291,13 @@ class RSA_Verfahren:
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(int(ord(Buchstabe)), int(self.E), int(self.n)))
 
+        Zeit = round(StartZeit - time.time(), 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ver")
                 return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
 
-        return NeuText
+        return NeuText, Zeit
 
 
     def Output_in_Datei_speichern(self, Text, Art: str = "RSA"):
