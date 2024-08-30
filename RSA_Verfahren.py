@@ -159,17 +159,20 @@ class RSA_Verfahren:
 
 
     def get_Text(self) -> str:
-        Text = input("Zu verschlüsselnder Text: ")
+        Text = input('Zu verschlüsselnder Text(oder "quit"): ')
         if Text:
             try:
                 for Buchstabe in Text:
                     if ord(Buchstabe) < int(self.n):
                         continue
+
                     print(f"ValueError: Ascii des Buchstaben größer als {self.n}")
                     return self.get_Text()
+
             except ValueError:
                 print("ValueError: Inkompatiebles Zeichen")
                 return self.get_Text()
+
             return Text
         return self.get_Text()
 
@@ -182,18 +185,20 @@ class RSA_Verfahren:
                 if Zahl.isdigit():
                     if int(Zahl) < int(self.n):
                         continue
+
                 print(f"\nValueError: Input muss eine Liste von ints unter {self.n} sein!")
-                return [0]
+                return self.get_Text_Ent()
             return Text
+
         print(f"\nValueError: Kein Input erkannt!")
-        return [0]
+        return self.get_Text_Ent()
 
 
     def verschlüsseln_Text(self) -> list:
         Text = self.get_Text()
         StartZeit = time.time()
-        if Text.startswith("ValueError"):
-            return Text
+        if Text.lower() == "quit":
+            return "Verschlüsselung abgebrochen!", 0.0
         NeuText = []
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
@@ -202,7 +207,7 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ver")
-                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", 
+                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
 
@@ -229,7 +234,7 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
-                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
 
@@ -242,14 +247,16 @@ class RSA_Verfahren:
                 Text = File.read()
                 File.close()
         except FileNotFoundError:
-            return f"\nValueError: Keine Datei erkannt!"
+            print(f"\nValueError: Keine Datei erkannt!")
+            return self.Entschlüsseln_Datei()
         if Text:
             Text = Text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
             for Zahl in Text:
                 if Zahl.isdigit():
                     if int(Zahl) < int(self.n):
                         continue
-                return f"\nValueError: Liste Ungültig!"
+                print(f"\nValueError: Liste Ungültig!")
+                return self.Entschlüsseln_Datei()
 
         NeuText = ""
         if not self.Verschlüsselung_dict:
@@ -269,7 +276,7 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
-                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
 
@@ -282,10 +289,12 @@ class RSA_Verfahren:
                 Text = File.read()
                 File.close()
         except FileNotFoundError:
-            return f"\nFileNotFoundError: Keine Datei erkannt!"
+            print(f"\nFileNotFoundError: Keine Datei erkannt!")
+            return self.Verschlüsseln_Datei()
 
         if not Text:
-            return f"\nValueError Datei hat keinen verschlüsselbaren Inhalt!"
+            print(f"\nValueError Datei hat keinen verschlüsselbaren Inhalt!")
+            return self.Verschlüsseln_Datei()
 
         NeuText = []
         for Buchstabe in Text:
@@ -295,7 +304,7 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ver")
-                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
 
