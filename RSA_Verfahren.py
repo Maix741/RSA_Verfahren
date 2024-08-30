@@ -199,6 +199,8 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ver")
+                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+
         return NeuText
 
 
@@ -223,6 +225,8 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
+                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+
         return NeuText
 
 
@@ -260,6 +264,8 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ent")
+                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
+
         return NeuText
 
 
@@ -283,6 +289,7 @@ class RSA_Verfahren:
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(NeuText, "Ver")
+                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!"
 
         return NeuText
 

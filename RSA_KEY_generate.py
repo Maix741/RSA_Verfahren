@@ -28,21 +28,22 @@ class Generate_Keys:
     def get_p_q(self) -> int:
         """get p, q"""
         Ende = 1
+        minEnde = 10000
         for _ in range(10):
             try:
-                Ende = int(input("Geben sie das Ende der Primzahlsuche ein: "))
+                Ende = int(input(f"Geben sie das Ende der Primzahlsuche ein(min: {minEnde}): "))
                 break
             except ValueError:
                 print("Bitte geben sie eine Zahl ein!")
                 continue
 
-        if Ende < 20000:
-            Ende += 20000
+        if Ende < minEnde:
+            Ende += minEnde
 
-        primzahlen = self.get_Primzahlen(Ende)
+        primzahlen = self.get_Primzahlen(Ende - minEnde, Ende)
 
-        p, q = 1, 1
-        while p == q:
+        p, q = 1, 2
+        while p == q or p <= 1 or q <= 1:
             p, q = random.choice(primzahlen), random.choice(primzahlen)
 
         primzahlen.clear()
@@ -81,10 +82,10 @@ class Generate_Keys:
         return d
 
 
-    def get_Primzahlen(self, Ende: int) -> list:
+    def get_Primzahlen(self, Start: int, Ende: int) -> list:
         """alle primzahlen in Bereich ausgeben"""
         primzahlen = []
-        for zahl in range(Ende - 20000, Ende):
+        for zahl in range(Start, Ende):
             teilbar = False
             if zahl > 1:
                 for primzahl in primzahlen:
