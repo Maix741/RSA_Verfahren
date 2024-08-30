@@ -9,7 +9,7 @@ class RSA_Verfahren:
     """Klasse mit Funktionen zum Ver-\n
       und Entschlüsseln mit dem RSA Verfahren"""
     def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200) -> None:
-        self.Optionen = """Verfügbare Optionen:
+        Optionen = """Verfügbare Optionen:
         1. Verschlüsseln -> "ver", "verschlüsseln", "ver_Datei
         2. Entschlüsseln -> "ent", "entschlüsseln", "ent_Datei"
         3. Schlüssel aufteilen -> "split_keys"
@@ -17,7 +17,7 @@ class RSA_Verfahren:
         5. Schlüsseldatei neu auswählen -> "choose_key"
         6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "speichern"
         """
-        print(self.Optionen)
+        print(Optionen)
         self.FileThreshhold = FileThreshhold
         self.Verschlüsselung_dict = {}
         self.swapped = False
