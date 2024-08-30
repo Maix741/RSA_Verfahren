@@ -77,7 +77,7 @@ class RSA_Verfahren:
             Generator = Generate_Keys()
             p, q, self.n, self.E, self.D = Generator.generate_keys()
             if input("Datei erstellen(y/n): ") == "y":
-                Generate_Keys.write_Keys(p, q, self.n, self.E, self.D)
+                Generator.write_Keys(p, q, self.n, self.E, self.D)
                 Split_Keys().create_Public_Private()
 
         # split_keys
@@ -291,7 +291,7 @@ class RSA_Verfahren:
         DateiName = f"{Art}schlüsselter Output.txt"
         currentDir = os.path.dirname(sys.argv[0])
         with open(os.path.join(currentDir, DateiName), "a") as Output_File:
-            Output_File.write(Text)
+            Output_File.write(str(Text))
             Output_File.close()
 
 
