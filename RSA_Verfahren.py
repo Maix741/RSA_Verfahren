@@ -10,9 +10,9 @@ class RSA_Verfahren:
       und Entschlüsseln mit dem RSA Verfahren"""
     def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200) -> None:
         self.modi = [
-            "ver", "ent", "Ent_Datei", "Ver_Datei",                                         # RSA Richtig (Abkürzungen) (0-3)
-            "Verschlüsseln", "Entschlüsseln",                                               # RSA Richtig (4-5)
-            "Sch_Generieren", "Sch_Teilen", "Sch_Auswählen", "Speichern", "Sch_Tauschen"    # RSA Zusatz  (6-10)
+            "ver", "ent", "ent_datei", "ver_datei",                         # RSA Richtig (Abkürzungen) (0-3)
+            "verschlüsseln", "entschlüsseln",                               # RSA Richtig (4-5)
+            "sch_generieren", "sch_teilen", "sch_auswählen", "speichern"    # RSA Zusatz  (6-9)
             ]
         Optionen = f"""Verfügbare Optionen:
         1. Verschlüsseln -> "{self.modi[0]}", "{self.modi[4]}", "{self.modi[3]}"
@@ -21,7 +21,6 @@ class RSA_Verfahren:
         4. Neue Schlüssel generieren -> "{self.modi[6]}"
         5. Schlüsseldatei neu auswählen -> "{self.modi[8]}"
         6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "{self.modi[9]}"
-        7. Schlüssel Tauschen(öf. --> Pri.) -> "{self.modi[10]}"
         """
         print(Optionen)
         self.FileThreshhold = FileThreshhold
@@ -45,31 +44,31 @@ class RSA_Verfahren:
 
 
         # verschlüsseln, ver, ver_datei
-        if Modus == self.modi[0].lower() or Modus == self.modi[4].lower():
+        if Modus == self.modi[0] or Modus == self.modi[4]:
             VerText, Zeit = self.verschlüsseln_Text()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
-        elif Modus == self.modi[3].lower():
+        elif Modus == self.modi[3]:
             VerText, Zeit = self.Verschlüsseln_Datei()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
 
         # entschlüsseln, ent, ent_datei
-        if Modus == self.modi[1].lower() or Modus == self.modi[5].lower():
+        if Modus == self.modi[1] or Modus == self.modi[5]:
             EntText, Zeit = self.Entschlüsseln_Text()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
-        elif Modus == self.modi[2].lower():
+        elif Modus == self.modi[2]:
             EntText, Zeit = self.Entschlüsseln_Datei()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
 
         # generate_keys
-        if Modus == self.modi[6].lower():
+        if Modus == self.modi[6]:
             Generator = Generate_Keys()
             p, q, self.n, self.E, self.D = Generator.generate_keys()
             if input("Datei erstellen(y/n): ") == "y":
@@ -77,30 +76,20 @@ class RSA_Verfahren:
                 Split_Keys().create_Public_Private()
 
         # split_keys
-        if Modus == self.modi[7].lower():
+        if Modus == self.modi[7]:
             Split_Keys().create_Public_Private()
             print("Schlüssel erfolgreich aufgeteilt")
 
         # choose_key
-        if Modus == self.modi[8].lower():
+        if Modus == self.modi[8]:
             self.__init__(True, False)
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
         # speichern
-        if Modus == self.modi[9].lower():
+        if Modus == self.modi[9]:
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
-
-        if Modus == self.modi[10].lower():
-            if not self.swapped:
-                self.swapped = True
-                print("Öffentlicher und Privater Schlüssel getauscht!")
-
-            elif self.swapped:
-                self.swapped = False
-                print("Öffentlicher und Privater Schlüssel wiederhergestellt!")
-            self.E, self.D = self.D, self.E
 
 
         return True
