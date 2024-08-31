@@ -199,7 +199,7 @@ class RSA_Verfahren:
         StartZeit = time.time()
         if Text.lower() == "quit":
             return "Verschlüsselung abgebrochen!", 0.0
-        NeuText = []
+        NeuText: list = []
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
 
@@ -223,13 +223,14 @@ class RSA_Verfahren:
         if self.Verschlüsselung_dict:
             for Zahl in Text:
                 Buch: str = str(self.Verschlüsselung_dict.get(int(Zahl)))
-                if Buch == "None":
+                if Buch == "None" or not Buch:
                     Buch: str = chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
                 NeuText += Buch
 
         elif not self.Verschlüsselung_dict:
             print("Verschlüsselungen nicht zwischengespeichert!")
+            print("Das Entschlüsseln könnte einige Zeit dauern, bitte Warten!")
             for Zahl in Text:
                 NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
