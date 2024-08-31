@@ -9,13 +9,19 @@ class RSA_Verfahren:
     """Klasse mit Funktionen zum Ver-\n
       und Entschlüsseln mit dem RSA Verfahren"""
     def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200) -> None:
-        Optionen = """Verfügbare Optionen:
-        1. Verschlüsseln -> "ver", "verschlüsseln", "ver_Datei
-        2. Entschlüsseln -> "ent", "entschlüsseln", "ent_Datei"
-        3. Schlüssel aufteilen -> "split_keys"
-        4. Neue Schlüssel generieren -> "generate_keys"
-        5. Schlüsseldatei neu auswählen -> "choose_key"
-        6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "speichern"
+        self.modi = [
+            "ver", "ent", "ent_datei", "ver_datei",                                         # RSA Richtig (Abkürzungen) (0-3)
+            "verschlüsseln", "entschlüsseln",                                               # RSA Richtig (4-5)
+            "sch_generieren", "sch_teilen", "sch_auswählen", "speichern", "sch_tauschen"    # RSA Zusatz  (6-10)
+            ]
+        Optionen = f"""Verfügbare Optionen:
+        1. Verschlüsseln -> "{self.modi[0]}", "{self.modi[4]}", "{self.modi[3]}"
+        2. Entschlüsseln -> "{self.modi[1]}", "{self.modi[5]}", "{self.modi[2]}"
+        3. Schlüssel aufteilen -> "{self.modi[7]}"
+        4. Neue Schlüssel generieren -> "{self.modi[6]}"
+        5. Schlüsseldatei neu auswählen -> "{self.modi[8]}"
+        6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "{self.modi[9]}"
+        7. Schlüssel Tauschen(öf. --> Pri.) -> "{self.modi[10]}"
         """
         print(Optionen)
         self.FileThreshhold = FileThreshhold
@@ -27,53 +33,43 @@ class RSA_Verfahren:
 
 
     def Get_mode(self) -> bool:
-        modi = [
-            "ver", "ent", "ent_datei", "ver_datei",                                    # RSA Richtig (Abkürzungen) (0-3)
-            "verschlüsseln", "entschlüsseln",                                          # RSA Richtig (4-5)
-            "generate_keys", "split_keys", "choose_key", "speichern", "swap_keys"      # RSA Zusatz  (6-10)
-            ]
-
         Modus = input('Modus(oder "quit"): ').lower().replace(" ", "")
 
         # check if Mode is valid or quit
         if Modus == "q" or Modus == "quit":
             return False
 
-        elif Modus not in modi:
+        elif Modus not in self.modi:
             print("Ungültiger Modus!")
             return True
 
 
-        # verschlüsseln, ver
-        if Modus == modi[0] or Modus == modi[4]:
+        # verschlüsseln, ver, ver_datei
+        if Modus == self.modi[0] or Modus == self.modi[4]:
             VerText, Zeit = self.verschlüsseln_Text()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
-            # Zeit = round(time.time() - self.Start_Ver, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
-        elif Modus == modi[3]:
+        elif Modus == self.modi[3]:
             VerText, Zeit = self.Verschlüsseln_Datei()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
-            # Zeit = round(time.time() - self.Start_Ver_Datei, 2)
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
 
-        # entschlüsseln, ent
-        if Modus == modi[1] or Modus == modi[5]:
+        # entschlüsseln, ent, ent_datei
+        if Modus == self.modi[1] or Modus == self.modi[5]:
             EntText, Zeit = self.Entschlüsseln_Text()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
-            # Zeit = round(time.time() - self.Start_Ent, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
-        elif Modus == modi[2]:
+        elif Modus == self.modi[2]:
             EntText, Zeit = self.Entschlüsseln_Datei()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
-            # Zeit = round(time.time() - self.Start_Ent_Datei, 2)
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
 
         # generate_keys
-        if Modus == modi[6]:
+        if Modus == self.modi[6]:
             Generator = Generate_Keys()
             p, q, self.n, self.E, self.D = Generator.generate_keys()
             if input("Datei erstellen(y/n): ") == "y":
@@ -81,22 +77,22 @@ class RSA_Verfahren:
                 Split_Keys().create_Public_Private()
 
         # split_keys
-        if Modus == modi[7]:
+        if Modus == self.modi[7]:
             Split_Keys().create_Public_Private()
             print("Schlüssel erfolgreich aufgeteilt")
 
         # choose_key
-        if Modus == modi[8]:
+        if Modus == self.modi[8]:
             self.__init__(True, False)
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
         # speichern
-        if Modus == modi[9]:
+        if Modus == self.modi[9]:
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
 
-        if Modus == modi[10]:
+        if Modus == self.modi[10]:
             if not self.swapped:
                 self.swapped = True
                 print("Öffentlicher und Privater Schlüssel getauscht!")
@@ -180,6 +176,9 @@ class RSA_Verfahren:
     def get_Text_Ent(self) -> list:
         Text = input("Text(list): ").replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
         if Text:
+            if Text == "quit":
+                return "quit"
+
             Text = Text.split(",")
             for Zahl in Text:
                 if Zahl.isdigit():
@@ -216,6 +215,9 @@ class RSA_Verfahren:
         Text = self.get_Text_Ent()
         NeuText: str = ""
         StartZeit = time.time()
+
+        if Text == "quit":
+            return "Entschlüsselung abgebrochen", 0.0
 
         if self.Verschlüsselung_dict:
             for Zahl in Text:
