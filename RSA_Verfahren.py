@@ -6,8 +6,13 @@ import time
 
 
 class RSA_Verfahren:
-    """Klasse mit Funktionen zum Ver-\n
-      und Entschlüsseln mit dem RSA Verfahren"""
+    """Class for encrypting and decrypting with RSA \n
+    Initialize the object\n
+    :param dialog: imediadly open filedialog for choosing Key file (bool)\n
+    :param speichern: immediadly create a dictionary with encryptions (bool)\n
+    :param FileThreshhold: lenght threshhold for writing en- or decryted Text in a File (int)\n
+    :return None:
+    """
     def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200) -> None:
         self.modi = [
             "ver", "ent", "ent_datei", "ver_datei",                         # RSA Richtig (Abkürzungen) (0-3)
@@ -82,7 +87,7 @@ class RSA_Verfahren:
 
         # choose_key
         elif Modus == self.modi[8]:
-            self.__init__(True, False)
+            self.D, self.E, self.n = self.load_key(True)
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
@@ -96,10 +101,19 @@ class RSA_Verfahren:
 
 
     def Ver_oder_Entschlüsseln(self, Text: int, Schlüssel: int, n: int) -> int:
+        """Method for encrypting and decrypting with RSA\n
+        :param Text: ASCII of a character (int)
+        :param Schlüssel: RSA Key (ether D or E) (int)\n
+        :param n: RSA Key fragment n (int)\n
+        :return int: encrypted or decrypted Text
+        """
         return Text ** Schlüssel % n
 
 
     def create_Ver_dictionary(self) -> None:
+        """Method for creating a dictionary for encryptions for ASCII(0-255) with the Public Key\n
+        :return None:
+        """
         # Buchstaben = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ü", "ä", "ö",
         #               "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Ü", "Ä", "Ö",
         #               " ", ",", ";", ".", ":", "!", "?", '"', "'", "#", "*", "&"]
@@ -112,6 +126,7 @@ class RSA_Verfahren:
         for Buchstabe in Buchstaben:
             Verschlüsselungen.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
 
+        self.Verschlüsselung_dict.clear()
         for Buch, verschlüsselung in zip(Buchstaben, Verschlüsselungen):
             self.Verschlüsselung_dict[verschlüsselung] = Buch
         Verschlüsselungen.clear()
@@ -119,6 +134,10 @@ class RSA_Verfahren:
 
 
     def load_key(self, dialog: bool = False) -> int:
+        """Method for loading all nessacary Key Fragments\n
+        :param dialog: if True the path to the Key file will be choosen with a filedialog
+        :return int: Key fragments D, E, n
+        """
         file = "KEYS/RSA_Key.txt"
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
@@ -131,6 +150,7 @@ class RSA_Verfahren:
                 file = "KEYS/RSA_Key.txt"
 
         Keys = []
+        self.swapped = False
         try:
             with open(file, "r") as Key_file:
                 for line in Key_file.readlines():
@@ -145,6 +165,9 @@ class RSA_Verfahren:
 
 
     def get_Text(self) -> str:
+        """Method for returning encryptable Text that is compatable with the encryption method\n
+        :return str: Text that would not create an Error
+        """
         Text = input('Zu verschlüsselnder Text(oder "quit"): ')
         if Text:
             try:
@@ -164,6 +187,9 @@ class RSA_Verfahren:
 
 
     def get_Text_Ent(self) -> list:
+        """Method for returning decryptable Text that is compatable with the decryption method\n
+        :return list: The list of numbers that would be decrypted
+        """
         Text = input("Text(list): ").replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
         if Text:
             if Text == "quit":
@@ -184,6 +210,9 @@ class RSA_Verfahren:
 
 
     def verschlüsseln_Text(self) -> list:
+        """Method for creating a dictionary for encryptions for ASCII(0-255) with the Public Key\n
+        :return list, int: The encrypted Text in the form of a list and the time nessasary for the encrytion
+        """
         Text = self.get_Text()
         StartZeit = time.time()
         if Text.lower() == "quit":
@@ -202,6 +231,9 @@ class RSA_Verfahren:
 
 
     def Entschlüsseln_Text(self) -> str:
+        """Method for decrypting a text\n
+        :return str: The decrypted Text as a string
+        """
         Text = self.get_Text_Ent()
         NeuText: str = ""
         StartZeit = time.time()
@@ -233,6 +265,9 @@ class RSA_Verfahren:
 
 
     def Entschlüsseln_Datei(self) -> str:
+        """Method for decrypting a text from a File\n
+        :return str: The decrypted Text as a string
+        """
         file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"),("All Files", "*.*")], title="Datei auswählen")
         StartZeit = time.time()
         try:
@@ -274,7 +309,10 @@ class RSA_Verfahren:
         return NeuText, Zeit
 
 
-    def Verschlüsseln_Datei(self) -> str:
+    def Verschlüsseln_Datei(self) -> list:
+        """Method for encrypting a text\n
+        :return list, float: The encrypted Text as a list and the nessesary time
+        """
         file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"),("All Files", "*.*")], title="Datei auswählen")
         StartZeit = time.time()
         try:
@@ -303,6 +341,11 @@ class RSA_Verfahren:
 
 
     def Output_in_Datei_speichern(self, Text: str, Art: str = "RSA") -> None:
+        """Method for saving an de or encrypted Text in a .txt file\n
+        :param Text: The Text that will be written into the file (str)
+        :param Art: (Optional)defines if the file contains en or decrypted Text default is "RSA"
+        :return None:
+        """
         DateiName = f"{Art}schlüsselter Output.txt"
         currentDir = os.path.dirname(sys.argv[0])
         with open(os.path.join(currentDir, DateiName), "a") as Output_File:
