@@ -76,18 +76,18 @@ class RSA_Verfahren:
                 Split_Keys().create_Public_Private()
 
         # split_keys
-        if Modus == self.modi[7]:
+        elif Modus == self.modi[7]:
             Split_Keys().create_Public_Private()
             print("Schlüssel erfolgreich aufgeteilt")
 
         # choose_key
-        if Modus == self.modi[8]:
+        elif Modus == self.modi[8]:
             self.__init__(True, False)
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
         # speichern
-        if Modus == self.modi[9]:
+        elif Modus == self.modi[9]:
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
 
