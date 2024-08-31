@@ -10,9 +10,9 @@ class RSA_Verfahren:
       und Entschlüsseln mit dem RSA Verfahren"""
     def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200) -> None:
         self.modi = [
-            "ver", "ent", "ent_datei", "ver_datei",                                         # RSA Richtig (Abkürzungen) (0-3)
-            "verschlüsseln", "entschlüsseln",                                               # RSA Richtig (4-5)
-            "sch_generieren", "sch_teilen", "sch_auswählen", "speichern", "sch_tauschen"    # RSA Zusatz  (6-10)
+            "ver", "ent", "Ent_Datei", "Ver_Datei",                                         # RSA Richtig (Abkürzungen) (0-3)
+            "Verschlüsseln", "Entschlüsseln",                                               # RSA Richtig (4-5)
+            "Sch_Generieren", "Sch_Teilen", "Sch_Auswählen", "Speichern", "Sch_Tauschen"    # RSA Zusatz  (6-10)
             ]
         Optionen = f"""Verfügbare Optionen:
         1. Verschlüsseln -> "{self.modi[0]}", "{self.modi[4]}", "{self.modi[3]}"
@@ -45,31 +45,31 @@ class RSA_Verfahren:
 
 
         # verschlüsseln, ver, ver_datei
-        if Modus == self.modi[0] or Modus == self.modi[4]:
+        if Modus == self.modi[0].lower() or Modus == self.modi[4].lower():
             VerText, Zeit = self.verschlüsseln_Text()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
-        elif Modus == self.modi[3]:
+        elif Modus == self.modi[3].lower():
             VerText, Zeit = self.Verschlüsseln_Datei()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Verschlüsseln: {Zeit}")
 
 
         # entschlüsseln, ent, ent_datei
-        if Modus == self.modi[1] or Modus == self.modi[5]:
+        if Modus == self.modi[1].lower() or Modus == self.modi[5].lower():
             EntText, Zeit = self.Entschlüsseln_Text()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
-        elif Modus == self.modi[2]:
+        elif Modus == self.modi[2].lower():
             EntText, Zeit = self.Entschlüsseln_Datei()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             print(f"Zeit zum Entschlüsseln: {Zeit}")
 
 
         # generate_keys
-        if Modus == self.modi[6]:
+        if Modus == self.modi[6].lower():
             Generator = Generate_Keys()
             p, q, self.n, self.E, self.D = Generator.generate_keys()
             if input("Datei erstellen(y/n): ") == "y":
@@ -77,22 +77,22 @@ class RSA_Verfahren:
                 Split_Keys().create_Public_Private()
 
         # split_keys
-        if Modus == self.modi[7]:
+        if Modus == self.modi[7].lower():
             Split_Keys().create_Public_Private()
             print("Schlüssel erfolgreich aufgeteilt")
 
         # choose_key
-        if Modus == self.modi[8]:
+        if Modus == self.modi[8].lower():
             self.__init__(True, False)
             if input("Speichern?(y/n): ").lower() == "y":
                 self.create_Ver_dictionary()
 
         # speichern
-        if Modus == self.modi[9]:
+        if Modus == self.modi[9].lower():
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
 
-        if Modus == self.modi[10]:
+        if Modus == self.modi[10].lower():
             if not self.swapped:
                 self.swapped = True
                 print("Öffentlicher und Privater Schlüssel getauscht!")
