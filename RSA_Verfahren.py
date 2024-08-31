@@ -126,9 +126,10 @@ class RSA_Verfahren:
         for Buch, verschlüsselung in zip(Buchstaben, Verschlüsselungen):
             self.Verschlüsselung_dict[verschlüsselung] = Buch
         Verschlüsselungen.clear()
+        Buchstaben.clear()
 
 
-    def load_key(self, dialog) -> int:
+    def load_key(self, dialog: bool = False) -> int:
         file = "KEYS/RSA_Key.txt"
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
@@ -202,10 +203,10 @@ class RSA_Verfahren:
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
 
-        Zeit = round(StartZeit - time.time(), 2)
+        Zeit = round(time.time() - StartZeit, 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
-                self.Output_in_Datei_speichern(NeuText, "Ver")
+                self.Output_in_Datei_speichern(str(NeuText), "Ver")
                 return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
@@ -232,10 +233,10 @@ class RSA_Verfahren:
             for Zahl in Text:
                 NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
-        Zeit = round(StartZeit - time.time(), 2)
+        Zeit = round(time.time() - StartZeit, 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
-                self.Output_in_Datei_speichern(NeuText, "Ent")
+                self.Output_in_Datei_speichern(str(NeuText), "Ent")
                 return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
@@ -274,10 +275,10 @@ class RSA_Verfahren:
 
                 NeuText += Buch
 
-        Zeit = StartZeit - time.time()
+        Zeit = time.time() - StartZeit
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
-                self.Output_in_Datei_speichern(NeuText, "Ent")
+                self.Output_in_Datei_speichern(str(NeuText), "Ent")
                 return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
@@ -294,7 +295,7 @@ class RSA_Verfahren:
             print(f"\nFileNotFoundError: Keine Datei erkannt!")
             return self.Verschlüsseln_Datei()
 
-        if not Text:
+        except not Text:
             print(f"\nValueError Datei hat keinen verschlüsselbaren Inhalt!")
             return self.Verschlüsseln_Datei()
 
@@ -302,20 +303,20 @@ class RSA_Verfahren:
         for Buchstabe in Text:
             NeuText.append(self.Ver_oder_Entschlüsseln(int(ord(Buchstabe)), int(self.E), int(self.n)))
 
-        Zeit = round(StartZeit - time.time(), 2)
+        Zeit = round(time.time() - StartZeit, 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
-                self.Output_in_Datei_speichern(NeuText, "Ver")
+                self.Output_in_Datei_speichern(str(NeuText), "Ver")
                 return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", Zeit
 
         return NeuText, Zeit
 
 
-    def Output_in_Datei_speichern(self, Text, Art: str = "RSA") -> None:
+    def Output_in_Datei_speichern(self, Text: str, Art: str = "RSA") -> None:
         DateiName = f"{Art}schlüsselter Output.txt"
         currentDir = os.path.dirname(sys.argv[0])
         with open(os.path.join(currentDir, DateiName), "a") as Output_File:
-            Output_File.write(str(Text))
+            Output_File.write(Text)
             Output_File.close()
 
 
