@@ -77,4 +77,4 @@ class Split_Keys:
 
 
 if __name__ == "__main__":
-        Split_Keys().create_Public_Private()
+    Split_Keys().create_Public_Private()
