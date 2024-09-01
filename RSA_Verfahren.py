@@ -160,7 +160,7 @@ class RSA_Verfahren:
                     Keys.append(line.rstrip())
                 Key_file.close()
         except FileNotFoundError:
-            print(f"FileNotFoundError: {file} nicht gefunden!")
+            print(f"{file} konnte nicht gefunden werden!")
             return self.load_key(True)
 
         # return D, E, n
@@ -178,11 +178,11 @@ class RSA_Verfahren:
                     if ord(Buchstabe) < int(self.n):
                         continue
 
-                    print(f"ValueError: Ascii des Buchstaben größer als {self.n}")
+                    print(f"Ascii der Buchstaben darf nicht größer als {self.n} sein!")
                     return self.get_Text()
 
             except ValueError:
-                print("ValueError: Inkompatiebles Zeichen")
+                print("Inkompatiebles Zeichen erkannt")
                 return self.get_Text()
 
             return Text
@@ -204,11 +204,11 @@ class RSA_Verfahren:
                     if int(Zahl) < int(self.n):
                         continue
 
-                print(f"\nValueError: Input muss eine Liste von ints unter {self.n} sein!")
+                print(f"\nEingabe muss eine Liste von ganzen Zahlen unter {self.n} sein!")
                 return self.get_Text_Ent()
             return Text
 
-        print(f"\nValueError: Kein Input erkannt!")
+        print(f'\nBitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu gehen')
         return self.get_Text_Ent()
 
 
@@ -278,7 +278,7 @@ class RSA_Verfahren:
                 Text = File.read()
                 File.close()
         except FileNotFoundError:
-            print(f"\nValueError: Keine Datei erkannt!")
+            print(f"\n{file} konnte nicht gefunden werden!")
             return self.Entschlüsseln_Datei()
         if Text:
             Text = Text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
@@ -286,16 +286,16 @@ class RSA_Verfahren:
                 if Zahl.isdigit():
                     if int(Zahl) < int(self.n):
                         continue
-                print(f"\nValueError: Liste Ungültig!")
+                print(f"\nUngültige Liste eingegeben! Richtig wäre z.B.: 400, 200")
                 return self.Entschlüsseln_Datei()
 
         NeuText = ""
         if not self.Verschlüsselung_dict:
+            print("Kein Wörterbuch erkannt! Bitte warten")
             for Zahl in Text:
                 NeuText += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
         elif self.Verschlüsselung_dict:
-            print("Dictionary erkannt")
             for Zahl in Text:
                 Buch = str(self.Verschlüsselung_dict.get(int(Zahl)))
                 if Buch == "None":
@@ -323,11 +323,11 @@ class RSA_Verfahren:
                 Text = File.read()
                 File.close()
         except FileNotFoundError:
-            print(f"\nFileNotFoundError: Keine Datei erkannt!")
+            print(f"\n{file} konnte nicht gefunden werden!")
             return self.Verschlüsseln_Datei()
 
         except not Text:
-            print(f"\nValueError Datei hat keinen verschlüsselbaren Inhalt!")
+            print(f"\nDie Datei hat keinen verschlüsselbaren Inhalt!")
             return self.Verschlüsseln_Datei()
 
         NeuText = []
