@@ -303,7 +303,7 @@ class RSA_Verfahren:
 
                 NeuText += Buch
 
-        Zeit = time.time() - StartZeit
+        Zeit = round(time.time() - StartZeit, 2)
         if len(NeuText) > self.FileThreshhold:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(str(NeuText), "Ent")
