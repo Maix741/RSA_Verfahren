@@ -37,6 +37,9 @@ class RSA_Verfahren:
 
 
     def Get_mode(self) -> bool:
+        """Method for choosing RSA mode from user input \n
+        :return bool: returns False when the user wnts to quit else: True
+        """
         Modus = input('Modus(oder "quit"): ').lower().replace(" ", "")
 
         # check if Mode is valid or quit
