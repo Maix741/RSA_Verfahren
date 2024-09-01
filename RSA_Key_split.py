@@ -77,8 +77,4 @@ class Split_Keys:
 
 
 if __name__ == "__main__":
-    try:
         Split_Keys().create_Public_Private()
-
-    except Exception as error:
-        print(f"Error: {error}")
