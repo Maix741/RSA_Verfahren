@@ -101,7 +101,12 @@ class Generate_Keys:
 
 
     def write_Keys(self, p: int, q: int, n: int, e: int, d: int) -> None:
-        with open(fr"{os.getcwd()}\KEYS\RSA_Key.txt", "w") as Keys_Datei:
+        fileDir = fr"{os.getcwd()}\KEYS\RSA_Key.txt"
+        i = 1
+        while os.path.isfile(fileDir):
+            fileDir = fr"{os.getcwd()}\KEYS\RSA_Key" + str(i) +".txt"
+            i += 1
+        with open(fileDir, "w") as Keys_Datei:
             Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# erst p, q, n, E, D")
             Keys_Datei.close()
 
@@ -114,8 +119,9 @@ if __name__ == "__main__":
     print(time.time() - Start)
     if input("Datei erstellen(y/n): ") == "y":
         Generator.write_Keys(p, q, n, E, D)
-        from RSA_Key_split import Split_Keys
-        Split_Keys().create_Public_Private()
+        if input("Split Key?(y/n): ") == "y":
+            from RSA_Key_split import Split_Keys
+            Split_Keys().create_Public_Private()
 
 
 
