@@ -13,6 +13,15 @@ class Generate_Keys:
             pass
 
 
+    def create_folder_structure(self) -> None:
+        currentDir = os.path.dirname(sys.argv[0])
+        os.chdir(currentDir)
+        try:
+            os.mkdir(os.path.join(currentDir, "KEYS"))
+        except FileExistsError:
+            pass
+
+
     def generate_keys(self) -> tuple:
         p, q = self.get_p_q()
 
@@ -25,10 +34,8 @@ class Generate_Keys:
         return p, q, n, e, d
 
 
-    def get_p_q(self) -> int:
+    def get_p_q(self, Ende: int = 1, minEnde: int = 10000) -> int:
         """get p, q"""
-        Ende = 1
-        minEnde = 10000
         for _ in range(10):
             try:
                 Ende = int(input(f"Geben sie das Ende der Primzahlsuche ein(min: {minEnde}): "))
@@ -62,7 +69,7 @@ class Generate_Keys:
 
         while m % e == 0:
             if e >= m:
-                print("Error")
+                print("Error: E konnte nicht gefunden werden! Bitte neu versuchen")
                 return None
             e += 1
 
@@ -76,7 +83,7 @@ class Generate_Keys:
             while (e * d % m) != 1:
                 d += 1
         except KeyboardInterrupt:
-            print("KeyboardInterrupt(D): ", d)
+            print(f"KeyboardInterrupt(D): ", d)
             return None
         print("D generiert!")
         return d
@@ -104,7 +111,7 @@ class Generate_Keys:
         fileDir = fr"{os.getcwd()}\KEYS\RSA_Key.txt"
         i = 1
         while os.path.isfile(fileDir):
-            fileDir = fr"{os.getcwd()}\KEYS\RSA_Key" + str(i) +".txt"
+            fileDir = fr"{os.getcwd()}\KEYS\RSA_Key" + str(i) + ".txt"
             i += 1
         with open(fileDir, "w") as Keys_Datei:
             Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# erst p, q, n, E, D")
@@ -116,10 +123,10 @@ if __name__ == "__main__":
     Generator = Generate_Keys()
     p, q, n, E, D = Generator.generate_keys()
     print(f"p, q, n, E, D: {p, q, n, E, D}")
-    print(time.time() - Start)
+    print(f"Benötigte Zeit: {time.time() - Start}")
     if input("Datei erstellen(y/n): ") == "y":
         Generator.write_Keys(p, q, n, E, D)
-        if input("Split Key?(y/n): ") == "y":
+        if input("Schlüssel teilen?(y/n): ") == "y":
             from RSA_Key_split import Split_Keys
             Split_Keys().create_Public_Private()
 
