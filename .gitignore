@@ -163,5 +163,6 @@ cython_debug/
 
 
 *txt
+!RSA_Key.txt
 test/
 old/
