@@ -7,11 +7,13 @@ import time
 
 class RSA_Verfahren:
     """Class for encrypting and decrypting with RSA \n
-    Initialize the object\n
-    :param bool dialog: imediadly open filedialog for choosing Key file standart is False\n
-    :param bool speichern: immediadly create a dictionary with encryptions (bool)\n
-    :param int FileThreshhold: lenght threshhold for writing en- or decryted Text in a File (int)\n
-    :param int known_charactars_ascii_range: end of range of ascii characters that will be added to the dictionarys "all" would be all posseble ascii codes\n
+    Initializing the object\n
+    :param bool dialog: imediadly open filedialog for choosing Key file standart is False
+    :param bool speichern: immediadly create a dictionary with encryptions (bool)
+    :param int FileThreshhold: lenght threshhold for writing en- or decryted Text in a File (int)
+    :param int known_charactars_ascii_range: end of range of ascii characters that will be added to the dictionarys "all" would be all posseble ascii codes
+    :param str forcefilecreation_keyword: Keyword that if it is at the beginning of the inputs a file will always be created
+    :param bool debug: Enable debug mode for viewing nessesary time for en- and decrypting
     :return None:
     """
     def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200, known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False) -> None:
@@ -40,8 +42,6 @@ class RSA_Verfahren:
         self.dictionary_zum_verschlüsseln = {}
         # self.swapped = False
         self.D, self.E, self.n = self.load_key(dialog)
-        if self.debug:
-            print(self.D, self.E, self.n)
         if speichern:
             self.create_Ver_dictionary()
 
@@ -213,7 +213,7 @@ class RSA_Verfahren:
         forcefile = False
         if Text:
             if Text == "quit":
-                return "quit"
+                return "quit", False
 
             try:
                 for Buchstabe in Text:
@@ -239,11 +239,11 @@ class RSA_Verfahren:
         """Method for returning decryptable Text that is compatable with the decryption method\n
         :return list: The list of numbers that would be decrypted
         """
-        Text = input("Text(list): ").replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
+        Text = input('Text(liste) oder "quit": ').replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
         forcefile = False
         if Text:
             if Text == "quit":
-                return "quit"
+                return "quit", False
 
             if Text.startswith(self.forcefilecreation_keyword):
                 Text = Text.lstrip(self.forcefilecreation_keyword)
