@@ -14,7 +14,7 @@ class RSA_Verfahren:
     :param int known_charactars_ascii_range: end of range of ascii characters that will be added to the dictionarys "all" would be all posseble ascii codes\n
     :return None:
     """
-    def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200, known_charactars_ascii_range: int = 255) -> None:
+    def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200, known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr") -> None:
         self.modi = [
             "ver", "ent", "ent_datei", "ver_datei",                         # RSA Richtig (Abkürzungen) (0-3)
             "verschlüsseln", "entschlüsseln",                               # RSA Richtig (4-5)
@@ -27,14 +27,14 @@ class RSA_Verfahren:
         4. Schlüssel aufteilen -> "{self.modi[7]}"
         5. Schlüsseldatei neu auswählen -> "{self.modi[8]}"
         6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "{self.modi[9]}"
-        Speicherung in eine Datei zwingen -> "/DateiEr" am Anfang des Textes oder der Liste
+        Speicherung in eine Datei zwingen -> "{forcefilecreation_keyword}" am Anfang des Textes oder der Liste
         """
         print(Optionen)
         if known_charactars_ascii_range == "all":
             known_charactars_ascii_range = int(0x110000)
         self.known_charactars_ascii_range = known_charactars_ascii_range
         self.FileThreshhold = FileThreshhold
-        self.forcefilecreation = "/DateiEr"
+        self.forcefilecreation_keyword = forcefilecreation_keyword
         self.dictionary_zum_entschlüsseln = {}
         self.dictionary_zum_verschlüsseln = {}
         # self.swapped = False
@@ -135,6 +135,7 @@ class RSA_Verfahren:
         #               " ", ",", ";", ".", ":", "!", "?", '"', "'", "#", "*", "&"]
         Buchstaben = []
 
+        Start = time.time()
         for ascii in range(self.known_charactars_ascii_range):
             Buchstaben.append(chr(ascii))
 
@@ -149,6 +150,7 @@ class RSA_Verfahren:
             self.dictionary_zum_verschlüsseln[buchstabe] = verschlüsselung
         Verschlüsselungen.clear()
         Buchstaben.clear()
+        print(f"Benötigte Zeit zum Speichern: {round(time.time() - Start, 5)} Sekunden")
 
 
     def load_key(self, dialog: bool = False) -> int:
@@ -218,8 +220,8 @@ class RSA_Verfahren:
                 print("Inkompatiebles Zeichen erkannt")
                 return self.get_Text()
 
-            if Text.startswith(self.forcefilecreation):
-                Text = Text.lstrip(self.forcefilecreation)
+            if Text.startswith(self.forcefilecreation_keyword):
+                Text = Text.lstrip(self.forcefilecreation_keyword)
                 forcefile = True
 
             return Text, forcefile
@@ -236,8 +238,8 @@ class RSA_Verfahren:
             if Text == "quit":
                 return "quit"
 
-            if Text.startswith(self.forcefilecreation):
-                Text = Text.lstrip(self.forcefilecreation)
+            if Text.startswith(self.forcefilecreation_keyword):
+                Text = Text.lstrip(self.forcefilecreation_keyword)
                 forcefile = True
 
             Text = Text.split(",")
@@ -323,8 +325,8 @@ class RSA_Verfahren:
             print(f"\nDie Datei hat keinen verschlüsselbaren Inhalt!")
             return self.Verschlüsseln_Datei()
         
-        elif Text.startswith(self.forcefilecreation):
-            Text = Text.lstrip(self.forcefilecreation)
+        elif Text.startswith(self.forcefilecreation_keyword):
+            Text = Text.lstrip(self.forcefilecreation_keyword)
             forcefile = True
 
         neutext = self.Verschlüsseln(Text)
@@ -405,8 +407,8 @@ class RSA_Verfahren:
             print(f"\n{file} konnte nicht gefunden werden!")
             return self.Entschlüsseln_Datei()
         if Text:
-            if Text.startswith(self.forcefilecreation):
-                Text = Text.lstrip(self.forcefilecreation)
+            if Text.startswith(self.forcefilecreation_keyword):
+                Text = Text.lstrip(self.forcefilecreation_keyword)
                 forcefile = True
             Text = Text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
             for Zahl in Text:
@@ -443,7 +445,7 @@ class RSA_Verfahren:
 
 
 if __name__ == "__main__":
-    Programm = RSA_Verfahren()
+    Programm = RSA_Verfahren(known_charactars_ascii_range="all")
     running = True
     while running:
         running = Programm.Get_mode()
