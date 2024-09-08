@@ -14,7 +14,7 @@ class RSA_Verfahren:
     :param int known_charactars_ascii_range: end of range of ascii characters that will be added to the dictionarys "all" would be all posseble ascii codes\n
     :return None:
     """
-    def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200, known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr") -> None:
+    def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200, known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False) -> None:
         self.modi = [
             "ver", "ent", "ent_datei", "ver_datei",                         # RSA Richtig (Abkürzungen) (0-3)
             "verschlüsseln", "entschlüsseln",                               # RSA Richtig (4-5)
@@ -30,6 +30,7 @@ class RSA_Verfahren:
         Speicherung in eine Datei zwingen -> "{forcefilecreation_keyword}" am Anfang des Textes oder der Liste
         """
         print(Optionen)
+        self.debug = debug
         if known_charactars_ascii_range == "all":
             known_charactars_ascii_range = int(0x110000)
         self.known_charactars_ascii_range = known_charactars_ascii_range
@@ -39,7 +40,8 @@ class RSA_Verfahren:
         self.dictionary_zum_verschlüsseln = {}
         # self.swapped = False
         self.D, self.E, self.n = self.load_key(dialog)
-        # print(self.D, self.E, self.n)
+        if self.debug:
+            print(self.D, self.E, self.n)
         if speichern:
             self.create_Ver_dictionary()
 
@@ -63,24 +65,28 @@ class RSA_Verfahren:
         if Modus == self.modi[0] or Modus == self.modi[4]:
             VerText, zeit = self.verschlüsseln_Text()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
-            print(f"Zeit zum Verschlüsseln: {zeit}")
+            if self.debug:
+                print(f"Zeit zum Verschlüsseln: {zeit}")
 
         elif Modus == self.modi[3]:
             VerText, zeit = self.Verschlüsseln_Datei()
             print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
-            print(f"Zeit zum Verschlüsseln: {zeit}")
+            if self.debug:
+                print(f"Zeit zum Verschlüsseln: {zeit}")
 
 
         # entschlüsseln, ent, ent_datei
         if Modus == self.modi[1] or Modus == self.modi[5]:
             EntText, zeit = self.Entschlüsseln_Text()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
-            print(f"Zeit zum Entschlüsseln: {zeit}")
+            if self.debug:
+                print(f"Zeit zum Entschlüsseln: {zeit}")
 
         elif Modus == self.modi[2]:
             EntText, zeit = self.Entschlüsseln_Datei()
             print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
-            print(f"Zeit zum Entschlüsseln: {zeit}")
+            if self.debug:
+                print(f"Zeit zum Entschlüsseln: {zeit}")
 
 
         # generate_keys
@@ -150,7 +156,8 @@ class RSA_Verfahren:
             self.dictionary_zum_verschlüsseln[buchstabe] = verschlüsselung
         Verschlüsselungen.clear()
         Buchstaben.clear()
-        print(f"Benötigte Zeit zum Speichern: {round(time.time() - Start, 5)} Sekunden")
+        if self.debug:
+            print(f"Benötigte Zeit zum Speichern: {round(time.time() - Start, 5)} Sekunden")
 
 
     def load_key(self, dialog: bool = False) -> int:
@@ -415,8 +422,7 @@ class RSA_Verfahren:
                 if Zahl.isdigit():
                     if int(Zahl) < int(self.n):
                         continue
-                print(Zahl)
-                print(Text.index(Zahl))
+
                 print(f"\nUngültige Liste eingegeben! Richtig wäre z.B.: 400, 200")
                 return self.Entschlüsseln_Datei()
 
@@ -445,7 +451,11 @@ class RSA_Verfahren:
 
 
 if __name__ == "__main__":
-    Programm = RSA_Verfahren(known_charactars_ascii_range="all")
+    DEBUG = False
+    if sys.argv[1:]:
+        if sys.argv[1].lower() == "debug":
+            DEBUG = True
+    Programm = RSA_Verfahren(debug=DEBUG)
     running = True
     while running:
         running = Programm.Get_mode()
