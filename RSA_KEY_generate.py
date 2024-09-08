@@ -84,7 +84,7 @@ class Generate_Keys:
                 d += 1
         except KeyboardInterrupt:
             print(f"KeyboardInterrupt(D): ", d)
-            return None
+            return self.get_D(m, e, d)
         print("D generiert!")
         return d
 

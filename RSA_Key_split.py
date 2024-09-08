@@ -14,6 +14,10 @@ class Split_Keys:
 
 
     def load_key(self, dialog: bool = False) -> int:
+        """Method for loading all nessacary Key Fragments\n
+        :param dialog: if True the path to the Key file will be choosen with a filedialog
+        :return int: Key fragments D, E, n
+        """
         file = "KEYS/RSA_Key.txt"
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
@@ -23,18 +27,30 @@ class Split_Keys:
                     p, q, self.n, self.E, self.D = Generator.generate_keys()
                     if input("Datei erstellen(y/n): ") == "y":
                         Generator.write_Keys(p, q, self.n, self.E, self.D)
-
                 file = "KEYS/RSA_Key.txt"
 
         Keys = []
+        # self.swapped = False
         try:
             with open(file, "r") as Key_file:
                 for line in Key_file.readlines():
                     Keys.append(line.rstrip())
                 Key_file.close()
-
         except FileNotFoundError:
-            print(f"FileNotFoundError: {file} nicht gefunden!")
+            print(f"{file} konnte nicht gefunden werden!")
+            return self.load_key(True)
+
+        if not Keys:
+            print("Leere Schlüsseldatei!")
+            return self.load_key(True)
+
+        for key in Keys:
+            if Keys.index(key) >= 5:
+                break
+            if key and key.isdigit():
+                continue
+
+            print("Ungültige Schlüsseldatei!")
             return self.load_key(True)
 
         # return D, E, n
@@ -52,12 +68,6 @@ class Split_Keys:
 
 
     def create_Public_Private(self) -> None:
-        Keys = []
-        with open(os.path.join(self.currentDir, "KEYS", "RSA_Key.txt"), "r") as Keys_Datei:
-            for line in Keys_Datei.readlines():
-                Keys.append(line.rstrip())  # erst p, q, n, E, D
-            Keys_Datei.close()
-
         d, e, n = self.load_key()
 
         self.write_Private(n, d)
