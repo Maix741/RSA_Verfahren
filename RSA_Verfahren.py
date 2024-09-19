@@ -16,7 +16,10 @@ class RSA_Verfahren:
     :param bool debug: Enable debug mode for viewing nessesary time for en- and decrypting
     :return None:
     """
-    def __init__(self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200, known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False) -> None:
+    def __init__(
+                self, dialog: bool = False, speichern: bool = True, FileThreshhold: int = 200,
+                known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False
+                ) -> None:
         self.modi = [
             "ver", "ent", "ent_datei", "ver_datei",                         # RSA Richtig (Abkürzungen) (0-3)
             "verschlüsseln", "entschlüsseln",                               # RSA Richtig (4-5)

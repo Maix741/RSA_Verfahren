@@ -15,7 +15,7 @@ class Split_Keys:
 
     def load_key(self, dialog: bool = False) -> int:
         """Method for loading all nessacary Key Fragments\n
-        :param dialog: if True the path to the Key file will be choosen with a filedialog
+        :param bool dialog: if True the path to the Key file will be choosen with a filedialog
         :return int: Key fragments D, E, n
         """
         file = "KEYS/RSA_Key.txt"
@@ -30,7 +30,6 @@ class Split_Keys:
                 file = "KEYS/RSA_Key.txt"
 
         Keys = []
-        # self.swapped = False
         try:
             with open(file, "r") as Key_file:
                 for line in Key_file.readlines():
