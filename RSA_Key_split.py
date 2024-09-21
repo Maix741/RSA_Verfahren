@@ -32,8 +32,7 @@ class Split_Keys:
         Keys = []
         try:
             with open(file, "r") as Key_file:
-                for line in Key_file.readlines():
-                    Keys.append(line.rstrip())
+                Keys = Key_file.read().splitlines()
                 Key_file.close()
         except FileNotFoundError:
             print(f"{file} konnte nicht gefunden werden!")

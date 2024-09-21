@@ -183,8 +183,7 @@ class RSA_Verfahren:
         # self.swapped = False
         try:
             with open(file, "r") as Key_file:
-                for line in Key_file.readlines():
-                    Keys.append(line.rstrip())
+                Keys = Key_file.read().splitlines()
                 Key_file.close()
         except FileNotFoundError:
             print(f"{file} konnte nicht gefunden werden!")
@@ -464,12 +463,12 @@ if __name__ == "__main__":
 
 
 # Geschwindigkeit Entschlüsseln für 100 Wörter Lorem Ipsum:
-    # Ohne dictionary: 219.78877234458923 Sekunden
-    # Mit dictionary: 0.0009968280792236328 Sekunden
+    # Ohne Wörterbuch: 219.78877234458923 Sekunden
+    # Mit Wörterbuch: 0.0009968280792236328 Sekunden
 
 # Geschwindigkeit Entschlüsseln für 1000 Wörter Lorem Ipsum:
-    # Ohne dictionary: 2236.4441187381744 Sekunden
-    # Mit dictionary: 0.008044004440307617 Sekunden
+    # Ohne Wörterbuch: 2236.4441187381744 Sekunden
+    # Mit Wörterbuch: 0.008044004440307617 Sekunden
 
 # Geschwindigkeit Wörterbuch erstellen:
     # alle Möglichen Zeichen: 1.3275301456451416 Sekunden
