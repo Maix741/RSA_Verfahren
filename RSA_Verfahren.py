@@ -169,16 +169,15 @@ class RSA_Verfahren:
         :return int: Key fragments D, E, n
         """
         currentdirectory = os.path.dirname(sys.argv[0])
-        file = os.path.join(currentdirectory, r"KEYS\RSA_Key.txt")
+        file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 if input("Schlüssel generieren?(y/n): ") == "y":
                     Generator = Generate_Keys()
-                    p, q, self.n, self.E, self.D = Generator.generate_keys()
-                    if input("Datei erstellen(y/n): ") == "y":
-                        Generator.write_Keys(p, q, self.n, self.E, self.D)
-                file = os.path.join(currentdirectory, r"KEYS\RSA_Key.txt")
+                    p, q, n, e, d = Generator.generate_keys()
+                    Generator.write_Keys(p, q, n, e, d)
+                file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
 
         Keys = []
         # self.swapped = False
