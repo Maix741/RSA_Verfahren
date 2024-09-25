@@ -21,9 +21,9 @@ class RSA_Verfahren:
                 known_charactars_ascii_range: int = 255, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False
                 ) -> None:
         self.modi = [
-            "ver", "ent", "ent_datei", "ver_datei",                         # RSA Richtig (Abkürzungen) (0-3)
-            "verschlüsseln", "entschlüsseln",                               # RSA Richtig (4-5)
-            "sch_generieren", "sch_teilen", "sch_auswählen", "speichern"    # RSA Zusatz  (6-9)
+            "ver", "ent", "ent_datei", "ver_datei",                                     # RSA Richtig (Abkürzungen) (0-3)
+            "verschlüsseln", "entschlüsseln",                                           # RSA Richtig (4-5)
+            "sch_generieren", "sch_teilen", "sch_auswählen", "speichern", "tauschen"    # RSA Zusatz  (6-10)
             ]
         Optionen = f"""Verfügbare Optionen:
         1. Verschlüsseln -> "{self.modi[0]}", "{self.modi[4]}", "{self.modi[3]}"
@@ -32,6 +32,7 @@ class RSA_Verfahren:
         4. Schlüssel aufteilen -> "{self.modi[7]}"
         5. Schlüsseldatei neu auswählen -> "{self.modi[8]}"
         6. Verschlüsselungen speichern(erhöht geschwindigkeit drastisch) -> "{self.modi[9]}"
+        7. Schlüssel tauschen -> "{self.modi[10]}"
         Speicherung in eine Datei zwingen -> "{forcefilecreation_keyword}" am Anfang des Textes oder der Liste
         """
         print(Optionen)
@@ -43,7 +44,7 @@ class RSA_Verfahren:
         self.forcefilecreation_keyword = forcefilecreation_keyword
         self.dictionary_zum_entschlüsseln = {}
         self.dictionary_zum_verschlüsseln = {}
-        # self.swapped = False
+        self.swapped = False
         self.D, self.E, self.n = self.load_key(dialog)
         if speichern:
             self.create_Ver_dictionary()
@@ -121,6 +122,15 @@ class RSA_Verfahren:
             print("Verschlüsselungen werden zwischengespeichert")
             self.create_Ver_dictionary()
 
+        elif Modus == self.modi[10]:
+            self.D, self.E = self.E, self.D
+            self.dictionary_zum_entschlüsseln = {}
+            self.dictionary_zum_verschlüsseln = {}
+            print("Schlüssel wurden getauscht")
+            if input("Speichern(y/n): ") == "y":
+                print("Bitte warten...")
+                self.create_Ver_dictionary()
+
 
         return True
 
@@ -136,7 +146,7 @@ class RSA_Verfahren:
 
 
     def create_Ver_dictionary(self) -> None:
-        """Method for creating a dictionary for encryptions for ASCII(0-255) with the Public Key\n
+        """Method for creating a dictionary for encryptions for ASCII range with the Public Key\n
         :return None:
         """
         # Buchstaben = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ü", "ä", "ö",
