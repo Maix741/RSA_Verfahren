@@ -1,5 +1,6 @@
 from RSA_Key_generate import Generate_Keys
 from RSA_Key_split import Split_Keys
+from colorama import Fore, Style
 from tkinter import filedialog
 import os, sys
 import time
@@ -62,7 +63,7 @@ class RSA_Verfahren:
             print({"D": self.D, "E": self.E, "n": self.n})
 
         elif Modus not in self.modi:
-            print("Ungültiger Modus!")
+            print(f"{Fore.RED}Ungültiger Modus!{Style.RESET_ALL}")
             return True
 
 
@@ -72,14 +73,14 @@ class RSA_Verfahren:
             if VerText:
                 print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"Zeit zum Verschlüsseln: {zeit}")
+                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
         elif Modus == self.modi[3].lower():
             VerText, zeit = self.Verschlüsseln_Datei()
             if VerText:
                 print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"Zeit zum Verschlüsseln: {zeit}")
+                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
 
         # entschlüsseln, ent, ent_datei
@@ -88,14 +89,14 @@ class RSA_Verfahren:
             if EntText:
                 print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"Zeit zum Entschlüsseln: {zeit}")
+                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
         elif Modus == self.modi[2].lower():
             EntText, zeit = self.Entschlüsseln_Datei()
             if EntText:
                 print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"Zeit zum Entschlüsseln: {zeit}")
+                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
 
         # generate_keys
@@ -109,17 +110,17 @@ class RSA_Verfahren:
         # split_keys
         elif Modus == self.modi[7].lower():
             Split_Keys().create_Public_Private((self.D, self.E, self.n))
-            print("Schlüssel erfolgreich aufgeteilt")
+            print(f"{Fore.GREEN}Schlüssel erfolgreich aufgeteilt{Style.RESET_ALL}")
 
         # choose_key
         elif Modus == self.modi[8].lower():
             self.D, self.E, self.n = self.load_key(True)
-            print("Schlüssel wurde erfolgreich geladen!")
+            print(f"{Fore.RED}Schlüssel wurde erfolgreich geladen!{Style.RESET_ALL}")
 
         # swap Keys
         elif Modus == self.modi[9].lower():
             self.D, self.E = self.E, self.D
-            print("Schlüssel wurden getauscht")
+            print(f"{Fore.GREEN}Schlüssel wurden getauscht{Style.RESET_ALL}")
 
         # print Options
         elif Modus == self.modi[10]:
@@ -140,7 +141,6 @@ class RSA_Verfahren:
 
 
     def load_key(self, dialog: bool = False) -> tuple[int]:
-        start = time.time()
         """Method for loading all nessacary Key Fragments\n
         :param bool dialog: if True the path to the Key file will be choosen with a filedialog
         :return tuple: Key fragments D, E, n
@@ -165,13 +165,13 @@ class RSA_Verfahren:
                 Key_file.close()
 
         except FileNotFoundError and UnicodeDecodeError:
-            print(f"Es gab einen Fehler beim Lesen der Datei: {file}")
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
 
         # Test Key
         if not self.test_key((Keys[2:5])):
-            print("Ungültiger Schlüssel oder Ungültige Schlüsseldatei!")
+            print(f"{Fore.RED}Ungültiger Schlüssel oder Ungültige Schlüsseldatei!{Style.RESET_ALL}")
             return self.load_key(True)
 
         # return D, E, n
@@ -200,7 +200,7 @@ class RSA_Verfahren:
             return False
 
         if self.debug:
-            print("Schlüsseldatei gültig")
+            print(f"{Fore.GREEN}Schlüsseldatei gültig{Style.RESET_ALL}")
 
         return True
 
@@ -220,11 +220,11 @@ class RSA_Verfahren:
                     if ord(Buchstabe) < int(self.n):
                         continue
 
-                    print(f"Ascii der Buchstaben darf nicht größer als {self.n} sein!")
+                    print(f"{Fore.RED}Ascii der Buchstaben darf nicht größer als {self.n} sein!{Style.RESET_ALL}")
                     return self.get_Text()
 
             except ValueError:
-                print("Inkompatiebles Zeichen erkannt")
+                print(f"{Fore.RED}Inkompatiebles Zeichen erkannt{Style.RESET_ALL}")
                 return self.get_Text()
 
             if Text.startswith(self.forcefilecreation_keyword):
@@ -255,11 +255,11 @@ class RSA_Verfahren:
                     if int(Zahl) < int(self.n):
                         continue
 
-                print(f"\nEingabe muss eine Liste von ganzen Zahlen unter {self.n} sein!")
+                print(f"{Fore.RED}Eingabe muss eine Liste von ganzen Zahlen unter {self.n} sein!{Style.RESET_ALL}")
                 return self.get_Text_Ent()
             return Text, forcefile
 
-        print(f'\nBitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu gehen')
+        print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu gehen{Style.RESET_ALL}')
         return self.get_Text_Ent()
 
 
@@ -312,15 +312,15 @@ class RSA_Verfahren:
                 FileToEncrypt.close()
 
         except FileNotFoundError:
-            print(f"\n{file} konnte nicht gefunden werden!")
+            print(f"{Fore.RED}{file} konnte nicht gefunden werden!{Style.RESET_ALL}")
             return self.Verschlüsseln_Datei()
 
         except UnicodeDecodeError:
-            print("Nicht Ascii Character konnte nicht Verschlüsselt werden!")
+            print(f"{Fore.RED}Nicht Ascii Character konnte nicht Verschlüsselt werden!{Style.RESET_ALL}")
             return self.Verschlüsseln_Datei()
 
         if not Text:
-            print(f"\nDie Datei hat keinen verschlüsselbaren Inhalt!")
+            print(f"{Fore.RED}Die Datei hat keinen verschlüsselbaren Inhalt!{Style.RESET_ALL}")
             return self.Verschlüsseln_Datei()
         
         elif Text.startswith(self.forcefilecreation_keyword):
@@ -371,7 +371,7 @@ class RSA_Verfahren:
                 neutext += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
 
         except Exception:
-            return "Liste oder Schlüssel ungültig"
+            return f"{Fore.RED}Liste oder Schlüssel ungültig{Style.RESET_ALL}"
         return neutext
 
 
@@ -391,15 +391,15 @@ class RSA_Verfahren:
                 FileToDecrypt.close()
 
         except FileNotFoundError:
-            print(f"\n{file} konnte nicht gefunden werden!")
+            print(f"{Fore.RED}{file} konnte nicht gefunden werden!{Style.RESET_ALL}")
             return self.Entschlüsseln_Datei()
 
         except UnicodeDecodeError:
-            print("Nicht Ascii Character konnte nicht Entschlüsselt werden!")
+            print(f"{Fore.RED}Nicht Ascii Character konnte nicht Entschlüsselt werden!{Style.RESET_ALL}")
             return self.Entschlüsseln_Datei()
 
         if not Text:
-            print(f"\nDie Datei hat keinen entschlüsselbaren Inhalt!")
+            print(f"{Fore.RED}Die Datei hat keinen entschlüsselbaren Inhalt!{Style.RESET_ALL}")
             return self.Entschlüsseln_Datei()
 
         elif Text:
@@ -412,7 +412,7 @@ class RSA_Verfahren:
                     if int(Zahl) < int(self.n):
                         continue
 
-                print(f"\nUngültige Liste eingegeben! Richtig wäre z.B.: [400, 200]")
+                print(f"{Fore.RED}Ungültige Liste eingegeben! Richtig wäre z.B.: [400, 200]{Style.RESET_ALL}")
                 return self.Entschlüsseln_Datei()
 
         NeuText: str = self.Entschlüsseln(Text)

@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import os, sys
 import random
 
@@ -8,8 +9,7 @@ class Generate_Keys:
         # os.chdir(currentDir)
         try:
             os.mkdir(os.path.join(self.currentDir, "KEYS"))
-        except FileExistsError:
-            pass
+        except FileExistsError: pass
 
 
     def is_prime(self, num: int) -> bool:
@@ -94,8 +94,8 @@ class Generate_Keys:
                 key = self.generate_keypair(p, q)
                 validKeyPair = True
             except ValueError:
-                print("Es gab einen Fehler beim generieren des Schlüssels!")
-                print("Wiederhole Generierung...")
+                print(f"{Fore.RED}Es gab einen Fehler beim generieren des Schlüssels!{Style.RESET_ALL}")
+                print(f"{Fore.RED}Wiederhole Generierung...{Style.RESET_ALL}")
                 validKeyPair = False
 
         return key

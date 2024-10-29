@@ -1,4 +1,5 @@
 from RSA_Key_generate import Generate_Keys
+from colorama import Fore, Style
 from tkinter import filedialog
 import os, sys
 
@@ -10,60 +11,56 @@ class Split_Keys:
         self.create_Folder_structure(self.currentDir)
 
 
-    def load_key(self, dialog: bool = False) -> tuple:
+    def load_key(self, dialog: bool = False) -> tuple[int]:
         """Method for loading all nessacary Key Fragments\n
         :param bool dialog: if True the path to the Key file will be choosen with a filedialog
         :return tuple: Key fragments D, E, n
         """
         currentdirectory = os.path.dirname(sys.argv[0])
-        file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
+        file: str = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
         if dialog:
             file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 if input("Schlüssel generieren?(y/n): ") == "y":
                     Generator = Generate_Keys()
                     p, q, n, e, d = Generator.generate_keys()
+                    if input("Dtei erstellen?(y/n): ").lower().strip() == "n":
+                        return (d, e, n)
                     Generator.write_Keys(p, q, n, e, d)
                 file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
 
-        Keys = []
+        Keys: list[int] = []
         try:
             with open(file, "r") as Key_file:
-                Keys = Key_file.read().splitlines()
+                Keys = Key_file.read().splitlines()[:5]
                 Key_file.close()
 
-        except FileNotFoundError:
-            print(f"{file} konnte nicht gefunden werden!")
+        except FileNotFoundError and UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
-        for key in Keys:
-            if Keys.index(key) >= 5:
-                break
-            if key and key.isdigit():
-                continue
 
-            print("Ungültige oder leere Schlüsseldatei!")
+        # Test Key
+        if not self.test_key((Keys[2:5])):
+            print(f"{Fore.RED}Ungültiger Schlüssel oder Ungültige Schlüsseldatei!{Style.RESET_ALL}")
             return self.load_key(True)
 
         # return D, E, n
         return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
 
 
-    def create_Folder_structure(self, rootDir) -> None:
+    def create_Folder_structure(self, rootDir: str) -> None:
         try:
             os.mkdir(os.path.join(rootDir, "RSA_Geteilt"))
             os.mkdir(os.path.join(rootDir, "RSA_Geteilt", "PUBLIC"))
             os.mkdir(os.path.join(rootDir, "RSA_Geteilt", "PRIVATE"))
 
-        except FileExistsError:
-            pass
+        except FileExistsError: pass
 
 
-    def create_Public_Private(self, key: tuple = None) -> None:
-        if key:
-            d, e, n = key
-        else:
-            d, e, n = self.load_key(True)
+    def create_Public_Private(self, key: tuple | None = None) -> None:
+        if key: d, e, n = key
+        else: d, e, n = self.load_key(True)
 
         self.write_Private(n, d)
         self.write_Public(n, e)
