@@ -7,16 +7,13 @@ class Split_Keys:
     def __init__(self) -> None:
         self.currentDir = os.path.dirname(sys.argv[0])
         os.chdir(self.currentDir)
-        try:
-            self.create_Folder_structure()
-        except FileExistsError:
-            pass
+        self.create_Folder_structure(self.currentDir)
 
 
-    def load_key(self, dialog: bool = False) -> int:
+    def load_key(self, dialog: bool = False) -> tuple:
         """Method for loading all nessacary Key Fragments\n
         :param bool dialog: if True the path to the Key file will be choosen with a filedialog
-        :return int: Key fragments D, E, n
+        :return tuple: Key fragments D, E, n
         """
         currentdirectory = os.path.dirname(sys.argv[0])
         file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
@@ -34,12 +31,9 @@ class Split_Keys:
             with open(file, "r") as Key_file:
                 Keys = Key_file.read().splitlines()
                 Key_file.close()
+
         except FileNotFoundError:
             print(f"{file} konnte nicht gefunden werden!")
-            return self.load_key(True)
-
-        if not Keys:
-            print("Leere Schlüsseldatei!")
             return self.load_key(True)
 
         for key in Keys:
@@ -48,41 +42,44 @@ class Split_Keys:
             if key and key.isdigit():
                 continue
 
-            print("Ungültige Schlüsseldatei!")
+            print("Ungültige oder leere Schlüsseldatei!")
             return self.load_key(True)
 
         # return D, E, n
-        return Keys.pop(4), Keys.pop(3), Keys.pop(2)
+        return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
 
 
-    def create_Folder_structure(self) -> None:
+    def create_Folder_structure(self, rootDir) -> None:
         try:
-            os.mkdir(os.path.join(self.currentDir, "RSA_Geteilt"))
-            os.mkdir(os.path.join(self.currentDir, "RSA_Geteilt", "PUBLIC"))
-            os.mkdir(os.path.join(self.currentDir, "RSA_Geteilt", "PRIVATE"))
+            os.mkdir(os.path.join(rootDir, "RSA_Geteilt"))
+            os.mkdir(os.path.join(rootDir, "RSA_Geteilt", "PUBLIC"))
+            os.mkdir(os.path.join(rootDir, "RSA_Geteilt", "PRIVATE"))
 
         except FileExistsError:
             pass
 
 
-    def create_Public_Private(self) -> None:
-        d, e, n = self.load_key()
+    def create_Public_Private(self, key: tuple = None) -> None:
+        if key:
+            d, e, n = key
+        else:
+            d, e, n = self.load_key(True)
 
         self.write_Private(n, d)
         self.write_Public(n, e)
 
 
-    def write_Public(self, n: int, E: int) -> None:
+    def write_Public(self, n: int, e: int) -> None:
         Publicfile = os.path.join(self.currentDir, "RSA_Geteilt", "PUBLIC", "PUBLIC_Key.txt")
         with open(Publicfile, "w") as Public:
-            Public.write(f"{n}\n{E}\n\n# erst n, E")
+            Public.write(f"{n}\n{e}\n\n# n, E")
             Public.close()
 
 
-    def write_Private(self, n: int, D: int) -> None:
+    def write_Private(self, n: int, d: int) -> None:
         Privatefile = os.path.join(self.currentDir, "RSA_Geteilt", "PRIVATE", "PRIVATE_Key.txt")
         with open(Privatefile, "w") as Private:
-            Private.write(f"{n}\n{D}\n\n# erst n, D")
+            Private.write(f"{n}\n{d}\n\n# n, D")
             Private.close()
 
 

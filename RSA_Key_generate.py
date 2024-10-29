@@ -1,41 +1,75 @@
 import os, sys
 import random
-import time
 
 
 class Generate_Keys:
     def __init__(self) -> None:
-        currentDir = os.path.dirname(sys.argv[0])
-        os.chdir(currentDir)
+        self.currentDir = os.path.dirname(sys.argv[0])
+        # os.chdir(currentDir)
         try:
-            os.mkdir(os.path.join(currentDir, "KEYS"))
+            os.mkdir(os.path.join(self.currentDir, "KEYS"))
         except FileExistsError:
             pass
 
 
-    def create_folder_structure(self) -> None:
-        currentDir = os.path.dirname(sys.argv[0])
-        os.chdir(currentDir)
-        try:
-            os.mkdir(os.path.join(currentDir, "KEYS"))
-        except FileExistsError:
-            pass
+    def is_prime(self, num: int) -> bool:
+        if num <= 2:
+            return False
+        for i in range(2, int(num ** 0.5) + 1):
+            if num % i == 0:
+                return False
+        return True
 
 
-    def generate_keys(self) -> tuple:
-        p, q = self.get_p_q()
+    def generate_random_prime(self, start: int, end: int) -> int:
+        while True:
+            num = random.randint(start, end)
+            if self.is_prime(num):
+                return num
 
+
+    def ggt(self, a: int, b: int) -> int:
+        while b != 0:
+            a, b = b, a % b
+
+        return a
+
+
+    def multiplicative_inverse(self, e: int, m: int) -> int | None:
+        def extended_gcd(a: int, b: int) -> int:
+            if a == 0:
+                return b, 0, 1
+
+            gcd, x, y = extended_gcd(b % a, a)
+            return gcd, y - (b // a) * x, x
+
+        gcd, x, _ = extended_gcd(e, m)
+        if gcd != 1:
+            return None
+
+        return x % m
+
+
+    def generate_keypair(self, p: int, q: int) -> tuple:
         n = p * q
         m = (p - 1) * (q - 1)
 
-        e = self.get_E(m)
-        d = self.get_D(m, e)
+        e = random.randrange(1, m)
+        while self.ggt(e, m) != 1:
+            e = random.randrange(1, m)
+        print("E generiert!")
 
-        return p, q, n, e, d
+        d = self.multiplicative_inverse(e, m)
+
+        if not d:
+            raise ValueError('Failed to generate proper RSA key pair')
+        print("D generiert!")
+
+        return (p, q, n, e, d)
 
 
-    def get_p_q(self, Ende: int = 1, minEnde: int = 10000) -> int:
-        """get p, q"""
+    def generate_keys(self, minEnde: int = 100000) -> tuple:
+        Ende = minEnde - 1
         for _ in range(10):
             try:
                 Ende = int(input(f"Geben sie das Ende der Primzahlsuche ein(min: {minEnde}): "))
@@ -47,90 +81,45 @@ class Generate_Keys:
         if Ende < minEnde:
             Ende += minEnde
 
-        primzahlen = self.get_Primzahlen(Ende - minEnde, Ende)
+        validKeyPair = False
+        while not validKeyPair:
+            p, q = 1, 1
+            while p == q:
+                p = self.generate_random_prime(Ende - minEnde, Ende)
+                q = self.generate_random_prime(Ende - minEnde, Ende)
 
-        p, q = 1, 2
-        while p == q or p <= 1 or q <= 1:
-            p, q = random.choice(primzahlen), random.choice(primzahlen)
+            print("p, q generiert!")
 
-        primzahlen.clear()
-        print("p und q generiert!")
-        return p, q
-
-
-    def get_E(self, m: int, e: int = 2) -> int:
-        for _ in range(10):
             try:
-                e = int(input("Geben sie den Start der Suche Nach E ein: "))
-                break
+                key = self.generate_keypair(p, q)
+                validKeyPair = True
             except ValueError:
-                print("Bitte geben sie eine Zahl ein!")
-                continue
+                print("Es gab einen Fehler beim generieren des Schlüssels!")
+                print("Wiederhole Generierung...")
+                validKeyPair = False
 
-        while m % e == 0:
-            if e >= m:
-                print("Error: E konnte nicht gefunden werden! Bitte neu versuchen")
-                return None
-            e += 1
-
-        print("E generiert!")
-        return e
+        return key
 
 
-    def get_D(self, m: int, e: int, d: int = 1) -> int:
-        # d = int(m/2)
-        try:
-            while (e * d % m) != 1:
-                d += 1
-        except KeyboardInterrupt:
-            print(f"KeyboardInterrupt(D): ", d)
-            return self.get_D(m, e, d)
-        print("D generiert!")
-        return d
-
-
-    def get_Primzahlen(self, Start: int, Ende: int) -> list:
-        """alle primzahlen in Bereich ausgeben"""
-        primzahlen = []
-        for zahl in range(Start, Ende):
-            teilbar = False
-            if zahl > 1:
-                for primzahl in primzahlen:
-                    if teilbar:
-                        break
-                    if zahl % primzahl == 0:
-                        teilbar = True
-
-                if not teilbar:
-                    primzahlen.append(zahl)
-
-        return primzahlen
-
-
-    def write_Keys(self, p: int, q: int, n: int, e: int, d: int) -> None:
-        fileDir = fr"{os.getcwd()}\KEYS\RSA_Key.txt"
+    def write_Keys(self, key: tuple[str], keyDirectory: str | None = None) -> None:
+        p, q, n, e, d = key
+        file = os.path.join(self.currentDir, "KEYS", "RSA_Key.txt")
         i = 1
-        while os.path.isfile(fileDir):
-            fileDir = fr"{os.getcwd()}\KEYS\RSA_Key" + str(i) + ".txt"
+        while os.path.isfile(file):
+            file = os.path.join(self.currentDir, "KEYS", f"RSA_Key{i}.txt")
             i += 1
-        with open(fileDir, "w") as Keys_Datei:
-            Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# erst p, q, n, E, D")
+        with open(file, "w") as Keys_Datei:
+            Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# p, q, n, E, D")
             Keys_Datei.close()
 
 
 if __name__ == "__main__":
-    Start = time.time()
     Generator = Generate_Keys()
-    p, q, n, E, D = Generator.generate_keys()
-    print(f"p, q, n, E, D: {p, q, n, E, D}")
-    print(f"Benötigte Zeit: {time.time() - Start}")
+    key = Generator.generate_keys()
+    print("Schlüssel erfolgreich generiert!")
+    print(f"p, q, n, E, D: {key}")
     if input("Datei erstellen(y/n): ") == "y":
-        Generator.write_Keys(p, q, n, E, D)
+        Generator.write_Keys(key)
         if input("Schlüssel teilen?(y/n): ") == "y":
             from RSA_Key_split import Split_Keys
-            Split_Keys().create_Public_Private()
-
-
-
-# Geschwindigkeit Primzahlen:
-    # 1-999999 -> 163.43349385261536 Sekunden --> 78498 Primzahlen
+            Split_Keys().create_Public_Private(key)
