@@ -53,7 +53,7 @@ class RSA_Verfahren:
         """Method for choosing RSA mode from user input \n
         :return bool: returns False when the user wnts to quit else: True
         """
-        Modus = input('Modus(oder "quit"): ').lower().strip()
+        Modus = input('Modus(oder "quit"): ').lower().strip().replace("_", " ")
 
         # check if Mode is valid or quit
         if Modus == "q" or Modus == "quit":
@@ -73,14 +73,14 @@ class RSA_Verfahren:
             if VerText:
                 print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
         elif Modus == self.modi[3].lower():
             VerText, zeit = self.Verschlüsseln_Datei()
             if VerText:
                 print(f"\n{VerText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
 
         # entschlüsseln, ent, ent_datei
@@ -89,14 +89,14 @@ class RSA_Verfahren:
             if EntText:
                 print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
         elif Modus == self.modi[2].lower():
             EntText, zeit = self.Entschlüsseln_Datei()
             if EntText:
                 print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
             if self.debug:
-                print(f"{Fore.RED}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
 
 
         # generate_keys
@@ -115,12 +115,12 @@ class RSA_Verfahren:
         # choose_key
         elif Modus == self.modi[8].lower():
             self.D, self.E, self.n = self.load_key(True)
-            print(f"{Fore.RED}Schlüssel wurde erfolgreich geladen!{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}Schlüssel wurde erfolgreich geladen!{Style.RESET_ALL}")
 
         # swap Keys
         elif Modus == self.modi[9].lower():
             self.D, self.E = self.E, self.D
-            print(f"{Fore.GREEN}Schlüssel wurden getauscht{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}Schlüssel wurde erfolgreich getauscht{Style.RESET_ALL}")
 
         # print Options
         elif Modus == self.modi[10]:
@@ -155,8 +155,8 @@ class RSA_Verfahren:
                     p, q, n, e, d = Generator.generate_keys()
                     if input("Dtei erstellen?(y/n): ").lower().strip() == "n":
                         return (d, e, n)
-                    Generator.write_Keys(p, q, n, e, d)
-                file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
+                    file = Generator.write_Keys((p, q, n, e, d))
+                else: file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt") # FIXME: if generated key is > 1 Key it will not be selected
 
         Keys: list[int] = []
         try:
@@ -164,7 +164,7 @@ class RSA_Verfahren:
                 Keys = Key_file.read().splitlines()[:5]
                 Key_file.close()
 
-        except FileNotFoundError and UnicodeDecodeError:
+        except FileNotFoundError or UnicodeDecodeError:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
@@ -279,7 +279,7 @@ class RSA_Verfahren:
         if len(neutext) >= self.FileThreshhold or forcefile:
             if input("Verschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(str(neutext), "Ver")
-                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", zeit
+                return f"{Fore.GREEN}Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
 
         return neutext, zeit
 
@@ -333,7 +333,7 @@ class RSA_Verfahren:
         if len(neutext) >= self.FileThreshhold or forcefile:
             if input("Verschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(str(neutext), "Ver")
-                return "Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", zeit
+                return f"{Fore.GREEN}Die Verschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
 
         return neutext, zeit
 
@@ -355,7 +355,7 @@ class RSA_Verfahren:
         if len(neutext) >= self.FileThreshhold or forcefile:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(str(neutext), "Ent")
-                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", zeit
+                return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
 
         return neutext, zeit
 
@@ -421,7 +421,7 @@ class RSA_Verfahren:
         if len(NeuText) >= self.FileThreshhold or forcefile:
             if input("Entschlüselten Text in Datei speichern?(y/n): ") == "y":
                 self.Output_in_Datei_speichern(str(NeuText), "Ent")
-                return "Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!", zeit
+                return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
 
         return NeuText, zeit
 
@@ -440,9 +440,11 @@ class RSA_Verfahren:
 
 
 if __name__ == "__main__":
-    Debug = False
-    if sys.argv[1:] and sys.argv[1].lower() == "debug":
-        Debug = True
+    try:
+        from main import argv_check
+        Debug = argv_check()
+    except ImportError: Debug = False
+
     Programm = RSA_Verfahren(debug=Debug)
     running = True
     while running:

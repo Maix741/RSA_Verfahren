@@ -101,7 +101,7 @@ class Generate_Keys:
         return key
 
 
-    def write_Keys(self, key: tuple[str], keyDirectory: str | None = None) -> None:
+    def write_Keys(self, key: tuple[int], keyDirectory: str | None = None) -> str:
         p, q, n, e, d = key
         file = os.path.join(self.currentDir, "KEYS", "RSA_Key.txt")
         i = 1
@@ -111,7 +111,7 @@ class Generate_Keys:
         with open(file, "w") as Keys_Datei:
             Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# p, q, n, E, D")
             Keys_Datei.close()
-
+        return file
 
 if __name__ == "__main__":
     Generator = Generate_Keys()
