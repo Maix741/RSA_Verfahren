@@ -39,12 +39,6 @@ class Split_Keys:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
-
-        # Test Key
-        if not self.test_key((Keys[2:5])):
-            print(f"{Fore.RED}Ungültiger Schlüssel oder Ungültige Schlüsseldatei!{Style.RESET_ALL}")
-            return self.load_key(True)
-
         # return D, E, n
         return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
 
@@ -55,28 +49,31 @@ class Split_Keys:
             os.mkdir(os.path.join(rootDir, "RSA_Geteilt", "PUBLIC"))
             os.mkdir(os.path.join(rootDir, "RSA_Geteilt", "PRIVATE"))
 
-        except FileExistsError: pass
+        except FileExistsError: ...
 
 
-    def create_Public_Private(self, key: tuple | None = None) -> None:
+    def create_Public_Private(self, key: tuple | None = None, pathForFolder: str | None = None) -> None:
         if key: d, e, n = key
         else: d, e, n = self.load_key(True)
+        if not pathForFolder: pathForFolder = os.path.dirname(sys.argv[0])
 
-        self.write_Private(n, d)
-        self.write_Public(n, e)
+        self.write_Private(n, d, pathForFolder)
+        self.write_Public(n, e, pathForFolder)
 
 
-    def write_Public(self, n: int, e: int) -> None:
-        Publicfile = os.path.join(self.currentDir, "RSA_Geteilt", "PUBLIC", "PUBLIC_Key.txt")
+    def write_Public(self, n: int, e: int, pathForFolder: str) -> None:
+        Publicfile = os.path.join(pathForFolder, "RSA_Geteilt", "PUBLIC", "PUBLIC_Key.txt")
         with open(Publicfile, "w") as Public:
-            Public.write(f"{n}\n{e}\n\n# n, E")
+            # Public.write(f"{n}\n{e}\n\n# n, E")
+            Public.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(e)}\n{str(0)}\n\n# p, q, n, E, D")
             Public.close()
 
 
-    def write_Private(self, n: int, d: int) -> None:
-        Privatefile = os.path.join(self.currentDir, "RSA_Geteilt", "PRIVATE", "PRIVATE_Key.txt")
+    def write_Private(self, n: int, d: int, pathForFolder: str) -> None:
+        Privatefile = os.path.join(pathForFolder, "RSA_Geteilt", "PRIVATE", "PRIVATE_Key.txt")
         with open(Privatefile, "w") as Private:
-            Private.write(f"{n}\n{d}\n\n# n, D")
+            # Private.write(f"{n}\n{d}\n\n# n, D")
+            Private.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(0)}\n{str(d)}\n\n# p, q, n, E, D")
             Private.close()
 
 

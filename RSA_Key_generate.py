@@ -1,4 +1,5 @@
 from colorama import Fore, Style
+from decimal import Decimal
 import os, sys
 import random
 
@@ -6,16 +7,16 @@ import random
 class Generate_Keys:
     def __init__(self) -> None:
         self.currentDir = os.path.dirname(sys.argv[0])
-        # os.chdir(currentDir)
         try:
             os.mkdir(os.path.join(self.currentDir, "KEYS"))
-        except FileExistsError: pass
+        except FileExistsError: ...
 
 
     def is_prime(self, num: int) -> bool:
         if num <= 2:
             return False
-        for i in range(2, int(num ** 0.5) + 1):
+        num == Decimal(num)
+        for i in range(2, int(num ** Decimal(0.5)) + 1):
             if num % i == 0:
                 return False
         return True
@@ -57,13 +58,13 @@ class Generate_Keys:
         e = random.randrange(1, m)
         while self.ggt(e, m) != 1:
             e = random.randrange(1, m)
-        print("E generiert!")
+        print(f"{Fore.GREEN}E generiert!{Style.RESET_ALL}")
 
         d = self.multiplicative_inverse(e, m)
 
         if not d:
             raise ValueError('Failed to generate proper RSA key pair')
-        print("D generiert!")
+        print(f"{Fore.GREEN}D generiert!{Style.RESET_ALL}")
 
         return (p, q, n, e, d)
 
@@ -75,8 +76,7 @@ class Generate_Keys:
                 Ende = int(input(f"Geben sie das Ende der Primzahlsuche ein(min: {minEnde}): "))
                 break
             except ValueError:
-                print("Bitte geben sie eine Zahl ein!")
-                continue
+                print(f"{Fore.GREEN}Bitte geben sie eine Zahl ein!{Style.RESET_ALL}")
 
         if Ende < minEnde:
             Ende += minEnde
@@ -88,7 +88,7 @@ class Generate_Keys:
                 p = self.generate_random_prime(Ende - minEnde, Ende)
                 q = self.generate_random_prime(Ende - minEnde, Ende)
 
-            print("p, q generiert!")
+            print(f"{Fore.GREEN}p, q generiert!{Style.RESET_ALL}")
 
             try:
                 key = self.generate_keypair(p, q)
@@ -102,21 +102,23 @@ class Generate_Keys:
 
 
     def write_Keys(self, key: tuple[int], keyDirectory: str | None = None) -> str:
+        rootDir = keyDirectory if keyDirectory else self.currentDir
         p, q, n, e, d = key
-        file = os.path.join(self.currentDir, "KEYS", "RSA_Key.txt")
+        file = os.path.join(rootDir, "KEYS", "RSA_Key.txt")
         i = 1
         while os.path.isfile(file):
-            file = os.path.join(self.currentDir, "KEYS", f"RSA_Key{i}.txt")
+            file = os.path.join(rootDir, "KEYS", f"RSA_Key{i}.txt")
             i += 1
         with open(file, "w") as Keys_Datei:
             Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# p, q, n, E, D")
             Keys_Datei.close()
         return file
 
+
 if __name__ == "__main__":
     Generator = Generate_Keys()
-    key = Generator.generate_keys()
-    print("Schlüssel erfolgreich generiert!")
+    key = Generator.generate_keys(minEnde=999999)
+    print(f"{Fore.GREEN}Schlüssel erfolgreich generiert!{Style.RESET_ALL}")
     print(f"p, q, n, E, D: {key}")
     if input("Datei erstellen(y/n): ") == "y":
         Generator.write_Keys(key)
