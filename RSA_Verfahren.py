@@ -177,17 +177,17 @@ class RSA_Verfahren:
         return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
 
 
-    def only_public(self, key):
-        self.modes[1], self.modes[5], self.modes[3], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
-        self.modes[0], self.modes[4], self.modes[2] = "ver", "verschlüsseln", "ver datei"
-        print("\033[H\033[J", end="")
-        print(self.Optionen)
-
+    def only_public(self, key) -> bool:
         for k in key[2:4]:
             if k and k.isdigit():
                 continue
 
             return False
+
+        self.modes[1], self.modes[5], self.modes[3], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
+        self.modes[0], self.modes[4], self.modes[2] = "ver", "verschlüsseln", "ver datei"
+        print("\033[H\033[J", end="")
+        print(self.Optionen)
 
         if self.debug:
             print(f"{Fore.GREEN}Private Schlüsseldatei gültig{Style.RESET_ALL}")
@@ -197,17 +197,17 @@ class RSA_Verfahren:
         return True
 
 
-    def only_private(self, key):
-        self.modes[0], self.modes[4], self.modes[2], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
-        self.modes[1], self.modes[5], self.modes[3] = "ent", "entschlüsseln", "ent datei"
-        print("\033[H\033[J", end="")
-        print(self.Optionen)
-
+    def only_private(self, key) -> bool:
         for k in key[2:4]:
             if k and k.isdigit():
                 continue
 
             return False
+
+        self.modes[0], self.modes[4], self.modes[2], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
+        self.modes[1], self.modes[5], self.modes[3] = "ent", "entschlüsseln", "ent datei"
+        print("\033[H\033[J", end="")
+        print(self.Optionen)
 
         if self.debug:
             print(f"{Fore.GREEN}Private Schlüsseldatei gültig{Style.RESET_ALL}")
