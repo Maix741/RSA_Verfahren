@@ -56,7 +56,7 @@ class RSA_Verfahren:
         if Modus == "q" or Modus == "quit":
             return False
 
-        elif Modus == "read_keys" and self.debug:
+        elif Modus == "read-keys" and self.debug:
             print({"D": self.D, "E": self.E, "n": self.n})
 
         elif Modus not in self.modes or Modus == "n/a":
