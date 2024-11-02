@@ -32,6 +32,7 @@ class RSA_Verfahren:
         5. Schlüsseldatei neu auswählen -> "{self.modes[8]}"
         6. Schlüssel tauschen -> "{self.modes[9]}"
         7. Diese Liste anzeigen -> "{self.modes[10]}"
+        8. Konsole leeren -> "{self.modes[11]}"
         Speicherung in eine Datei zwingen -> "{forcefilecreation_keyword}" am Anfang des Textes oder der Liste\n"""
         print(self.Optionen)
 
