@@ -64,16 +64,18 @@ class Split_Keys:
     def write_Public(self, n: int, e: int, pathForFolder: str) -> None:
         Publicfile = os.path.join(pathForFolder, "RSA_Geteilt", "PUBLIC", "PUBLIC_Key.txt")
         with open(Publicfile, "w") as Public:
+            Public.write(f"Mode: Public\n\n{n}\n{e}\n\n# n, E")
             # Public.write(f"{n}\n{e}\n\n# n, E")
-            Public.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(e)}\n{str(0)}\n\n# p, q, n, E, D")
+            # Public.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(e)}\n{str(0)}\n\n# p, q, n, E, D")
             Public.close()
 
 
     def write_Private(self, n: int, d: int, pathForFolder: str) -> None:
         Privatefile = os.path.join(pathForFolder, "RSA_Geteilt", "PRIVATE", "PRIVATE_Key.txt")
         with open(Privatefile, "w") as Private:
+            Private.write(f"Mode: Private\n\n{n}\n{d}\n\n# n, D")
             # Private.write(f"{n}\n{d}\n\n# n, D")
-            Private.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(0)}\n{str(d)}\n\n# p, q, n, E, D")
+            # Private.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(0)}\n{str(d)}\n\n# p, q, n, E, D")
             Private.close()
 
 

@@ -40,7 +40,6 @@ class RSA_Verfahren:
         self.forcefilecreation_keyword: str = forcefilecreation_keyword
 
         self.D, self.E, self.n = self.load_key(dialog) # load the Key
-        self.fix_modes() # FIXME: Make this unnessesary
 
 
     def fix_modes(self) -> None:
@@ -60,7 +59,7 @@ class RSA_Verfahren:
         elif Modus == "read_keys" and self.debug:
             print({"D": self.D, "E": self.E, "n": self.n})
 
-        elif Modus not in self.modes:
+        elif Modus not in self.modes or Modus == "n/a":
             print(f"{Fore.RED}Ungültiger Modus!{Style.RESET_ALL}")
             return True
 
@@ -170,12 +169,52 @@ class RSA_Verfahren:
 
 
         # Test Key
-        if not self.test_key((Keys[2:5])):
+        if not self.test_key((Keys[:5])):
             print(f"{Fore.RED}Ungültiger Schlüssel oder Ungültige Schlüsseldatei!{Style.RESET_ALL}")
             return self.load_key(True)
 
         # return D, E, n
         return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
+
+
+    def only_public(self, key):
+        self.modes[1], self.modes[5], self.modes[3], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
+        self.modes[0], self.modes[4], self.modes[2] = "ver", "verschlüsseln", "ver datei"
+        print("\033[H\033[J", end="")
+        print(self.Optionen)
+
+        for k in key[2:4]:
+            if k and k.isdigit():
+                continue
+
+            return False
+
+        if self.debug:
+            print(f"{Fore.GREEN}Private Schlüsseldatei gültig{Style.RESET_ALL}")
+
+        print(f"{Fore.YELLOW}Nur öffentlicher Schlüssel geladen{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}Entschlüsseln wird deaktiviert{Style.RESET_ALL}")
+        return True
+
+
+    def only_private(self, key):
+        self.modes[0], self.modes[4], self.modes[2], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
+        self.modes[1], self.modes[5], self.modes[3] = "ent", "entschlüsseln", "ent datei"
+        print("\033[H\033[J", end="")
+        print(self.Optionen)
+
+        for k in key[2:4]:
+            if k and k.isdigit():
+                continue
+
+            return False
+
+        if self.debug:
+            print(f"{Fore.GREEN}Private Schlüsseldatei gültig{Style.RESET_ALL}")
+
+        print(f"{Fore.YELLOW}Nur privater Schlüssel geladen{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}Verchlüsseln wird deaktiviert{Style.RESET_ALL}")
+        return True
 
 
     def test_key(self, key: tuple[int]) -> bool:
@@ -184,13 +223,24 @@ class RSA_Verfahren:
         if de and encrypting works\n
         :param key tuple: The Key as a tuple
         :return validKey bool: returns True if the Key is valid"""
-        for k in key:
+        if key[0] == "Mode: Public": return self.only_public(key)
+        if key[0] == "Mode: Private": return self.only_private(key)
+        else:
+            self.modes = [
+            "Ver", "Ent", "Ver Datei", "Ent Datei",                        # RSA Richtig (Abkürzungen) (0-3)
+            "Verschlüsseln", "Entschlüsseln",                              # RSA Richtig (4-5)
+            "Sch Generieren", "Sch teilen", "Sch auswählen", "tauschen",   # RSA Zusatz  (6-9)
+            "Modi", "clear"                                                # RSA Quality of Life (10)
+            ]
+            self.fix_modes() # FIXME: Make this unnessesary
+
+        for k in key[2:5]:
             if k and k.isdigit():
                 continue
 
             return False
 
-        n, e, d = key
+        _, _, n, e, d = key
         testText = chr(255)
         verText = self.Ver_oder_Entschlüsseln(ord(testText), int(e), int(n))
         entText = self.Ver_oder_Entschlüsseln(verText, int(d), int(n))
