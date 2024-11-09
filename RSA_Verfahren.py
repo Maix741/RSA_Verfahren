@@ -259,24 +259,25 @@ class RSA_Verfahren:
         :return str: Text that would not create an Error"""
         Text = input('Zu verschlüsselnder Text(oder "quit"): ')
         forcefile = False
-        if Text:
-            if Text == "quit":
-                return "quit", False
+        if not Text:
+            print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu kehren{Style.RESET_ALL}')
+            return self.get_Text()
 
-            for Buchstabe in Text:
-                if ord(Buchstabe) < int(self.n):
-                    continue
+        if Text.lower() == "quit":
+            return None, False
 
-                print(f"{Fore.RED}Ascii der Buchstaben darf nicht größer als {self.n} sein!{Style.RESET_ALL}")
-                return self.get_Text()
+        for Buchstabe in Text:
+            if ord(Buchstabe) < int(self.n):
+                continue
 
-            if Text.startswith(self.forcefilecreation_keyword):
-                Text = Text.lstrip(self.forcefilecreation_keyword)
-                forcefile = True
+            print(f"{Fore.RED}Ascii der Buchstaben darf nicht größer als {self.n} sein!{Style.RESET_ALL}")
+            return self.get_Text()
 
-            return Text, forcefile
-        print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu kehren{Style.RESET_ALL}')
-        return self.get_Text()
+        if Text.startswith(self.forcefilecreation_keyword):
+            Text = Text.lstrip(self.forcefilecreation_keyword)
+            forcefile = True
+
+        return Text, forcefile
 
 
     def get_Text_Ent(self) -> list[int]:
@@ -284,26 +285,28 @@ class RSA_Verfahren:
         :return list: The list of numbers that would be decrypted"""
         Text = input('Text(Liste) oder "quit": ').replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
         forcefile = False
-        if Text:
-            if Text == "quit":
-                return "quit", False
 
-            if Text.startswith(self.forcefilecreation_keyword):
-                Text = Text.lstrip(self.forcefilecreation_keyword)
-                forcefile = True
+        if Text.lower() == "quit":
+            return None, False
 
-            Text = Text.split(",")
-            for Zahl in Text:
-                if Zahl.isdigit():
-                    if int(Zahl) < int(self.n):
-                        continue
+        if not Text:
+            print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu kehren{Style.RESET_ALL}')
+            return self.get_Text_Ent()
 
-                print(f"{Fore.RED}Eingabe muss eine Liste von ganzen Zahlen unter {self.n} sein!{Style.RESET_ALL}")
-                return self.get_Text_Ent()
-            return Text, forcefile
+        if Text.startswith(self.forcefilecreation_keyword):
+            Text = Text.lstrip(self.forcefilecreation_keyword)
+            forcefile = True
 
-        print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu kehren{Style.RESET_ALL}')
-        return self.get_Text_Ent()
+        Text = Text.split(",")
+        for Zahl in Text:
+            if Zahl.isdigit():
+                if int(Zahl) < int(self.n):
+                    continue
+
+            print(f"{Fore.RED}Eingabe muss eine Liste von ganzen Zahlen unter {self.n} sein!{Style.RESET_ALL}")
+            return self.get_Text_Ent()
+
+        return Text, forcefile
 
 
     def Verschlüsseln(self, Text: str) -> list[int]:
@@ -349,11 +352,10 @@ class RSA_Verfahren:
         :return float: Time nessasary for the encryption"""
         Text, forcefile = self.get_Text()
         startzeit = time.time()
-        if Text.lower() == "quit":
+        if not Text and not forcefile:
             return None, 0.0
 
         neutext = self.Verschlüsseln(Text)
-
         zeit = time.time() - startzeit
 
         return self.check_file_creation(neutext, zeit, forcefile, "Ver")
@@ -373,24 +375,19 @@ class RSA_Verfahren:
                 Text = FileToEncrypt.read()
                 FileToEncrypt.close()
 
-        except FileNotFoundError:
-            print(f"{Fore.RED}{file} konnte nicht gefunden werden!{Style.RESET_ALL}")
-            return self.Verschlüsseln_Datei()
-
-        except UnicodeDecodeError:
-            print(f"{Fore.RED}Nicht Ascii Character konnte nicht Verschlüsselt werden!{Style.RESET_ALL}")
+        except FileNotFoundError or UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.Verschlüsseln_Datei()
 
         if not Text:
             print(f"{Fore.RED}Die Datei hat keinen verschlüsselbaren Inhalt!{Style.RESET_ALL}")
             return self.Verschlüsseln_Datei()
-        
+
         elif Text.startswith(self.forcefilecreation_keyword):
             Text = Text.lstrip(self.forcefilecreation_keyword)
             forcefile = True
 
         neutext = self.Verschlüsseln(Text)
-
         zeit = time.time() - startzeit
 
         return self.check_file_creation(neutext, zeit, forcefile, "Ver")
@@ -403,11 +400,10 @@ class RSA_Verfahren:
         Text, forcefile = self.get_Text_Ent()
         startzeit = time.time()
 
-        if Text == "quit":
+        if not Text and not forcefile:
             return None, 0.0
 
         neutext = self.Entschlüsseln(Text)
-
         zeit = time.time() - startzeit
 
         return self.check_file_creation(neutext, zeit, forcefile, "Ent")
@@ -421,39 +417,33 @@ class RSA_Verfahren:
         if not file:
             return None, 0.0
         startzeit = time.time()
-        forcefile = False
+        forcefile: bool = False
         try:
             with open(file, "r") as FileToDecrypt:
                 Text = FileToDecrypt.read()
                 FileToDecrypt.close()
 
-        except FileNotFoundError:
-            print(f"{Fore.RED}{file} konnte nicht gefunden werden!{Style.RESET_ALL}")
-            return self.Entschlüsseln_Datei()
-
-        except UnicodeDecodeError:
-            print(f"{Fore.RED}Nicht Ascii Character konnte nicht Entschlüsselt werden!{Style.RESET_ALL}")
+        except FileNotFoundError or UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.Entschlüsseln_Datei()
 
         if not Text:
             print(f"{Fore.RED}Die Datei hat keinen entschlüsselbaren Inhalt!{Style.RESET_ALL}")
             return self.Entschlüsseln_Datei()
 
-        elif Text:
-            if Text.startswith(self.forcefilecreation_keyword):
-                Text = Text.lstrip(self.forcefilecreation_keyword)
-                forcefile = True
+        if Text.startswith(self.forcefilecreation_keyword):
+            Text = Text.lstrip(self.forcefilecreation_keyword)
+            forcefile = True
+
         Text = Text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
         for Zahl in Text:
-            if Zahl.isdigit():
-                if int(Zahl) < int(self.n):
-                    continue
+            if Zahl.isdigit() and int(Zahl) < int(self.n):
+                continue
 
-            print(f"{Fore.RED}Ungültige Liste eingegeben! Richtig wäre z.B.: [400, 200]{Style.RESET_ALL}")
+            print(f"{Fore.RED}Ungültige Liste in der Datei! Richtig wäre z.B.: [400, 200]{Style.RESET_ALL}")
             return self.Entschlüsseln_Datei()
 
         NeuText: str = self.Entschlüsseln(Text)
-
         zeit = time.time() - startzeit
 
         return self.check_file_creation(NeuText, zeit, forcefile, "Ent")
@@ -477,10 +467,12 @@ class RSA_Verfahren:
 
 
     def check_file_creation(self, neuText, zeit, forceFile: bool, art: str = "RSA") -> str:
-        if len(str(neuText)) >= self.FileThreshhold or forceFile:
-            if len(str(neuText)) >= self.FileThreshhold ** 2 or input("Text in einer Datei speichern?(y/n): ") == "y":
-                self.Output_in_Datei_speichern(str(neuText), art)
-                return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
+        if not len(str(neuText)) >= self.FileThreshhold and not forceFile:
+            return neuText, zeit
+
+        if len(str(neuText)) >= self.FileThreshhold ** 2 or input("Text in einer Datei speichern?(y/n): ") == "y":
+            self.Output_in_Datei_speichern(str(neuText), art)
+            return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
 
         return neuText, zeit
 
