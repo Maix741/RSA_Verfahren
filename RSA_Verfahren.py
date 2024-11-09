@@ -178,7 +178,7 @@ class RSA_Verfahren:
         return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
 
 
-    def only_public(self, key) -> bool:
+    def only_public_test(self, key) -> bool:
         for k in key[2:4]:
             if k and k.isdigit():
                 continue
@@ -191,14 +191,27 @@ class RSA_Verfahren:
         print(self.Optionen)
 
         if self.debug:
-            print(f"{Fore.GREEN}Private Schlüsseldatei gültig{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}Öffentliche Schlüsseldatei gültig{Style.RESET_ALL}")
 
         print(f"{Fore.YELLOW}Nur öffentlicher Schlüssel geladen{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}Entschlüsseln wird deaktiviert{Style.RESET_ALL}")
         return True
 
 
-    def only_private(self, key) -> bool:
+    def load_big_key(self) -> None:
+        """edits sys.setrecursionlimit and sys.set_int_max_str_digits to 1000000000\n
+        :return None:"""
+        print(f"{Fore.RED}Schlüssel zu groß!{Style.RESET_ALL}")
+        print(f"{Fore.RED}Schalte um auf große Schlüssel!{Style.RESET_ALL}")
+        if self.debug:
+            print(f"{Fore.YELLOW}sys variablen werden geändert...{Style.RESET_ALL}""")
+        setTo: int = 1000000000
+        sys.setrecursionlimit(setTo)
+        sys.set_int_max_str_digits(setTo)
+        print(f"{Fore.RED}Schlüsselauswahl bitte neu versuchen!{Style.RESET_ALL}")
+
+
+    def only_private_test(self, key) -> bool:
         for k in key[2:4]:
             if k and k.isdigit():
                 continue
@@ -218,14 +231,14 @@ class RSA_Verfahren:
         return True
 
 
-    def test_key(self, key: tuple[int]) -> bool:
+    def test_key(self, key: tuple[int | str]) -> bool:
         """Method for testing a RSA Key\n
         Tests if the key is a number and\n
         if de and encrypting works\n
         :param key tuple: The Key as a tuple
         :return validKey bool: returns True if the Key is valid"""
-        if key[0] == "Mode: Public": return self.only_public(key)
-        if key[0] == "Mode: Private": return self.only_private(key)
+        if key[0] == "Mode: Public": return self.only_public_test(key)
+        if key[0] == "Mode: Private": return self.only_private_test(key)
         else:
             self.modes = [
             "Ver", "Ent", "Ver Datei", "Ent Datei",                        # RSA Richtig (Abkürzungen) (0-3)
@@ -241,17 +254,24 @@ class RSA_Verfahren:
 
             return False
 
-        _, _, n, e, d = key
-        testText = chr(255)
-        verText = self.Ver_oder_Entschlüsseln(ord(testText), int(e), int(n))
-        entText = self.Ver_oder_Entschlüsseln(verText, int(d), int(n))
-        if entText != ord(testText):
+        try:
+            startTest = time.time()
+            _, _, n, e, d = key
+            testText = chr(255)
+            entText = 255
+            verText = self.Ver_oder_Entschlüsseln(ord(testText), int(e), int(n))
+            entText = self.Ver_oder_Entschlüsseln(verText, int(d), int(n))
+            if entText != ord(testText):
+                return False
+
+            if self.debug:
+                print(f"{Fore.GREEN}Schlüsseldatei gültig{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}Testzeit war: {time.time() - startTest}{Style.RESET_ALL}")
+            return True
+
+        except ValueError:
+            self.load_big_key()
             return False
-
-        if self.debug:
-            print(f"{Fore.GREEN}Schlüsseldatei gültig{Style.RESET_ALL}")
-
-        return True
 
 
     def get_Text(self) -> str:

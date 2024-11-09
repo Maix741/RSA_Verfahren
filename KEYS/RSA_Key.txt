@@ -6,3 +6,4 @@
 
 # p, q, n, E, D
 # Dieser Schlüssel dient nur als Beispiel einer Schlüssel Datei
+# # ca. 0.0009 Sekunden pro Character

@@ -51,15 +51,20 @@ class Generate_Keys:
         return x % m
 
 
-    def generate_keypair(self, p: int, q: int) -> tuple:
-        n = p * q
-        m = (p - 1) * (q - 1)
-
+    def generate_E(self, m: int) -> int:
         e = random.randrange(1, m)
         while self.ggt(e, m) != 1:
             e = random.randrange(1, m)
         print(f"{Fore.GREEN}E generiert!{Style.RESET_ALL}")
+        return e
 
+
+    def generate_keypair(self, p: int, q: int) -> tuple:
+        n = p * q
+        m = (p - 1) * (q - 1)
+
+
+        e = self.generate_E(m)
         d = self.multiplicative_inverse(e, m)
 
         if not d:
