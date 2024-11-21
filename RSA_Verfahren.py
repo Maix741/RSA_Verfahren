@@ -34,9 +34,9 @@ class RSA_Verfahren:
 
     def reset_modes(self) -> None:
         self.modes = [
-            "Ver", "Ent", "Ver Datei", "Ent Datei",                        # RSA Richtig (Abkürzungen) (0-3)
-            "Verschlüsseln", "Entschlüsseln",                              # RSA Richtig (4-5)
-            "Sch Generieren", "Sch teilen", "Sch auswählen", "tauschen",   # RSA Zusatz  (6-9)
+            "Ver", "Ent", "Ver Datei", "Ent Datei",                        # RSA shortend (0-3)
+            "Verschlüsseln", "Entschlüsseln",                              # RSA full (4-5)
+            "Sch Generieren", "Sch teilen", "Sch auswählen", "tauschen",   # RSA extra (6-9)
             "Modi", "clear"                                                # RSA Quality of Life (10)
             ]
         self.options = f"""Verfügbare Optionen:
@@ -190,8 +190,8 @@ class RSA_Verfahren:
 
             return False
 
+        self.reset_modes()
         self.modes[1], self.modes[5], self.modes[3], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
-        self.modes[0], self.modes[4], self.modes[2] = "ver", "verschlüsseln", "ver datei"
         print("\033[H\033[J", end="")
         print(self.options)
 
@@ -222,8 +222,8 @@ class RSA_Verfahren:
 
             return False
 
+        self.reset_modes()
         self.modes[0], self.modes[4], self.modes[2], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
-        self.modes[1], self.modes[5], self.modes[3] = "ent", "entschlüsseln", "ent datei"
         print("\033[H\033[J", end="")
         print(self.options)
 
