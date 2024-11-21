@@ -18,7 +18,7 @@ class Split_Keys:
         currentDirectory = os.path.dirname(sys.argv[0])
         file: str = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
         if dialog:
-            file = filedialog.askopenfilename(initialdir=currentDirectory, filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
+            file = filedialog.askopenfilename(initialdir=currentDirectory, filetypes=[("Key Files", "*.key"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 if input("Schlüssel generieren?(y/n): ") == "y":
                     Generator = Generate_Keys()
