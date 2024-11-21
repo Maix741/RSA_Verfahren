@@ -12,12 +12,12 @@ class Generate_Keys:
         except FileExistsError: ...
 
 
-    def is_prime(self, num: int) -> bool:
-        if num <= 2:
+    def is_prime(self, number: int) -> bool:
+        if number <= 2:
             return False
-        num == Decimal(num)
-        for i in range(2, int(num ** Decimal(0.5)) + 1):
-            if num % i == 0:
+        number == Decimal(number)
+        for i in range(2, int(number ** Decimal(0.5)) + 1):
+            if number % i == 0:
                 return False
         return True
 
@@ -29,7 +29,7 @@ class Generate_Keys:
                 return num
 
 
-    def ggt(self, a: int, b: int) -> int:
+    def gcd(self, a: int, b: int) -> int:
         while b != 0:
             a, b = b, a % b
 
@@ -53,7 +53,7 @@ class Generate_Keys:
 
     def generate_E(self, m: int) -> int:
         e = random.randrange(1, m)
-        while self.ggt(e, m) != 1:
+        while self.gcd(e, m) != 1:
             e = random.randrange(1, m)
         print(f"{Fore.GREEN}E generiert!{Style.RESET_ALL}")
         return e
@@ -80,15 +80,17 @@ class Generate_Keys:
             try:
                 Ende = int(input(f"Geben sie das Ende der Primzahlsuche ein(min: {minEnde}): "))
                 break
+
             except ValueError:
-                print(f"{Fore.GREEN}Bitte geben sie eine Zahl ein!{Style.RESET_ALL}")
+                print(f"{Fore.RED}Bitte geben sie eine Zahl ein!{Style.RESET_ALL}")
 
         if Ende < minEnde:
             Ende += minEnde
 
         validKeyPair = False
         while not validKeyPair:
-            p, q = 1, 1
+            p = self.generate_random_prime(Ende - minEnde, Ende)
+            q = self.generate_random_prime(Ende - minEnde, Ende)
             while p == q:
                 p = self.generate_random_prime(Ende - minEnde, Ende)
                 q = self.generate_random_prime(Ende - minEnde, Ende)
@@ -109,10 +111,10 @@ class Generate_Keys:
     def write_Keys(self, key: tuple[int], keyDirectory: str | None = None) -> str:
         rootDir = keyDirectory if keyDirectory else self.currentDir
         p, q, n, e, d = key
-        file = os.path.join(rootDir, "KEYS", "RSA_Key.txt")
+        file = os.path.join(rootDir, "KEYS", "RSA_Key.key")
         i = 1
         while os.path.isfile(file):
-            file = os.path.join(rootDir, "KEYS", f"RSA_Key{i}.txt")
+            file = os.path.join(rootDir, "KEYS", f"RSA_Key{i}.key")
             i += 1
         with open(file, "w") as Keys_Datei:
             Keys_Datei.write(f"{str(p)}\n{str(q)}\n{str(n)}\n{str(e)}\n{str(d)}\n\n# p, q, n, E, D")

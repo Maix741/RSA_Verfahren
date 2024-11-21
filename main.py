@@ -3,24 +3,24 @@ from colorama import Fore, Style
 import sys
 
 
-def argv_check() -> bool:
+def argv_check(args: list) -> bool:
     """:return debug: returns True if debugging mode has been activated"""
-    if "debug" in sys.argv or "Debug" in sys.argv:
+    if "debug" in args or "Debug" in args:
         print(f"{Fore.YELLOW}Debugging mode activated!{Style.RESET_ALL}")
-        Debug = True
-    else: Debug = False
+        debug = True
+    else: debug = False
 
-    if "lizenz" in sys.argv or "licence" in sys.argv:
+    if "lizenz" in args or "licence" in args:
         print(f"{Fore.YELLOW}Licence information:")
         print(f"\tSource: https://github.com/Maix741/RSA_Verfahren")
         print(f"\tLicence: https://github.com/Maix741/RSA_Verfahren/blob/main/LICENSE\n{Style.RESET_ALL}")
 
-    return Debug
+    return debug
 
 
 if __name__ == "__main__":
-    Debug: bool = argv_check()
-    Programm = RSA_Verfahren(debug=Debug)
+    debug: bool = argv_check(sys.argv)
+    Programm = RSA_Verfahren(debug=debug)
     running = True
     while running:
-        running = Programm.Get_mode()
+        running = Programm.get_mode()

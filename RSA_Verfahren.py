@@ -11,20 +11,35 @@ class RSA_Verfahren:
     """Class for encrypting and decrypting with RSA \n
     The object needs to be initialized\n
     :param bool dialog: imediadly open filedialog for choosing Key file standart is False
-    :param int FileThreshhold: lenght threshhold for writing en- or decryted Text in a File (int)
+    :param int FileThreshhold: lenght threshhold for writing en- or decryted text in a File (int)
     :param str forcefilecreation_keyword: Keyword that if it is at the beginning of the inputs a file will always be created
     :param bool debug: Enable debug mode for viewing nessesary time for en- and decrypting
     :return None:"""
     def __init__(self,
                  dialog: bool = False, FileThreshhold: int = 200, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False
                 ) -> None:
+        self.debug: bool = debug
+        self.fileThreshhold: int = FileThreshhold # set object variables
+        self.forceFilecreationKeyword: str = forcefilecreation_keyword
+        self.reset_modes()
+        print(self.options)
+
+        self.D, self.E, self.n = self.load_key(dialog) # load the Key
+
+
+    def fix_modes(self) -> None: #TODO: remove this
+        """Temporary fix for Problem: selectedMode not in self.modes -> line 66"""
+        self.modes = [mode.lower() for mode in self.modes] # makes all modes lowercase
+
+
+    def reset_modes(self) -> None:
         self.modes = [
             "Ver", "Ent", "Ver Datei", "Ent Datei",                        # RSA Richtig (Abkürzungen) (0-3)
             "Verschlüsseln", "Entschlüsseln",                              # RSA Richtig (4-5)
             "Sch Generieren", "Sch teilen", "Sch auswählen", "tauschen",   # RSA Zusatz  (6-9)
             "Modi", "clear"                                                # RSA Quality of Life (10)
             ]
-        self.Optionen = f"""Verfügbare Optionen:
+        self.options = f"""Verfügbare Optionen:
         1. Verschlüsseln -> "{self.modes[0]}", "{self.modes[4]}", "{self.modes[2]}"
         2. Entschlüsseln -> "{self.modes[1]}", "{self.modes[5]}", "{self.modes[3]}"
         3. Neue Schlüsselpaare generieren -> "{self.modes[6]}"
@@ -33,152 +48,142 @@ class RSA_Verfahren:
         6. Schlüssel tauschen -> "{self.modes[9]}"
         7. Diese Liste anzeigen -> "{self.modes[10]}"
         8. Konsole leeren -> "{self.modes[11]}"
-        Speicherung in eine Datei zwingen -> "{forcefilecreation_keyword}" am Anfang des Textes oder der Liste\n"""
-        print(self.Optionen)
+        Speicherung in eine Datei zwingen -> "{self.forceFilecreationKeyword}" am Anfang des Textes oder der Liste\n"""
 
-        self.debug: bool = debug
-        self.FileThreshhold: int = FileThreshhold # set object variables
-        self.forcefilecreation_keyword: str = forcefilecreation_keyword
-
-        self.D, self.E, self.n = self.load_key(dialog) # load the Key
+        self.fix_modes()
 
 
-    def fix_modes(self) -> None:
-        """Temporary fix for Problem: Modus not in self.modes -> line 66"""
-        self.modes = [mode.lower() for mode in self.modes] # makes all modes lowercase
-
-
-    def Get_mode(self) -> bool:
+    def get_mode(self) -> bool:
         """Method for choosing RSA mode from user input \n
         :return bool: returns False when the user wnts to quit else: True"""
-        Modus = input('Modus(oder "quit"): ').lower().strip().replace("_", " ")
+        selectedMode = input('Modus(oder "quit"): ').lower().strip().replace("_", " ")
 
         # check if Mode is valid or quit
-        if Modus == "q" or Modus == "quit":
+        if selectedMode == "q" or selectedMode == "quit":
             return False
 
-        elif Modus == "read-keys" and self.debug:
+        if selectedMode == "read-keys" and self.debug:
             print({"D": self.D, "E": self.E, "n": self.n})
 
-        elif Modus not in self.modes or Modus == "n/a":
-            print(f"{Fore.RED}Ungültiger Modus!{Style.RESET_ALL}")
+        if selectedMode not in self.modes or selectedMode == "n/a":
+            print(f"{Fore.RED}Ungültiger selectedMode!{Style.RESET_ALL}")
             return True
 
 
         # ver, verschlüsseln | ver_datei
-        if Modus == self.modes[0] or Modus == self.modes[4]:
-            VerText, zeit = self.verschlüsseln_Text()
-            if VerText:
-                print(f"\n{VerText}\n") # TODO: Mehr mit Text machen
+        if selectedMode == self.modes[0] or selectedMode == self.modes[4]:
+            encryptedText, timeNessesary = self.encrypt_text()
+            if encryptedText:
+                print(f"\n{encryptedText}\n") # TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
 
-        elif Modus == self.modes[2]:
-            VerText, zeit = self.Verschlüsseln_Datei()
-            if VerText:
-                print(f"\n{VerText}\n") # TODO: Mehr mit Text machen
+        elif selectedMode == self.modes[2]:
+            encryptedText, timeNessesary = self.encrypt_file()
+            if encryptedText:
+                print(f"\n{encryptedText}\n") # TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
 
 
         # ent, entschlüsseln | ent_datei
-        if Modus == self.modes[1] or Modus == self.modes[5]:
-            EntText, zeit = self.Entschlüsseln_Text()
-            if EntText:
-                print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
+        if selectedMode == self.modes[1] or selectedMode == self.modes[5]:
+            decryptedText, timeNessesary = self.decrypt_text()
+            if decryptedText:
+                print(f"\n{decryptedText}\n")# TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
 
-        elif Modus == self.modes[3]:
-            EntText, zeit = self.Entschlüsseln_Datei()
-            if EntText:
-                print(f"\n{EntText}\n")# TODO: Mehr mit Text machen
+        elif selectedMode == self.modes[3]:
+            decryptedText, timeNessesary = self.decrypt_file()
+            if decryptedText:
+                print(f"\n{decryptedText}\n")# TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {zeit}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
 
 
         # generate_keys
-        if Modus == self.modes[6]:
+        if selectedMode == self.modes[6]:
             Generator = Generate_Keys()
             p, q, self.n, self.E, self.D = Generator.generate_keys()
-            if input("Datei erstellen(y/n): ") == "y":
+            if input("Datei erstellen(y/n): ").lower() == "y":
                 Generator.write_Keys((p, q, self.n, self.E, self.D))
 
         # split_keys
-        elif Modus == self.modes[7]:
+        elif selectedMode == self.modes[7]:
             Split_Keys().create_Public_Private((self.D, self.E, self.n))
             print(f"{Fore.GREEN}Schlüssel erfolgreich aufgeteilt{Style.RESET_ALL}")
 
         # choose_key
-        elif Modus == self.modes[8]:
+        elif selectedMode == self.modes[8]:
             self.D, self.E, self.n = self.load_key(True)
             print(f"{Fore.GREEN}Schlüssel wurde erfolgreich geladen!{Style.RESET_ALL}")
 
-        # swap Keys
-        elif Modus == self.modes[9]:
+        # swap keys
+        elif selectedMode == self.modes[9]:
             self.D, self.E = self.E, self.D
             print(f"{Fore.GREEN}Schlüssel wurde erfolgreich getauscht{Style.RESET_ALL}")
 
         # print options/modes
-        elif Modus == self.modes[10]:
-            print(self.Optionen)
+        elif selectedMode == self.modes[10]:
+            print(self.options)
 
         # clear
-        elif Modus == self.modes[11]:
+        elif selectedMode == self.modes[11]:
             print("\033[H\033[J", end="")
-            print(self.Optionen)
+            print(self.options)
 
 
         return True
 
 
-    def Ver_oder_Entschlüsseln(self, Text: int, Schlüssel: int, n: int) -> int:
+    def en_or_decrypt(self, text: int, key: int, n: int) -> int:
         """Method for encrypting and decrypting with RSA\n
-        :param int Text: ASCII of a character (int)
+        :param int text: ASCII of a character (int)
         :param int Schlüssel: RSA Key (ether D or E) (int)\n
         :param int n: RSA Key fragment n (int)\n
-        :return int: encrypted or decrypted Text"""
-        return pow(Text, Schlüssel, n)
+        :return int: encrypted or decrypted text"""
+        return pow(text, key, n)
 
 
     def load_key(self, dialog: bool = False) -> tuple[int]:
         """Method for loading all nessacary Key Fragments\n
         :param bool dialog: if True the path to the Key file will be choosen with a filedialog
         :return tuple: Key fragments D, E, n"""
-        currentdirectory = os.path.dirname(sys.argv[0])
-        file: str = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
+        currentDirectory = os.path.dirname(sys.argv[0])
+        file: str = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
         if dialog:
-            file = filedialog.askopenfilename(initialdir=currentdirectory, filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
+            file = filedialog.askopenfilename(initialdir=currentDirectory, filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 if input("Schlüssel generieren?(y/n): ") == "y":
                     Generator = Generate_Keys()
                     p, q, n, e, d = Generator.generate_keys()
-                    if input("Datei erstellen?(y/n): ").lower().strip() == "n":
+                    if input("Datei erstellen?(y/n): ").lower().strip() == "n": # TODO: less nesting
                         return (d, e, n)
                     file = Generator.write_Keys((p, q, n, e, d))
-                else: file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
+                else: file = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
 
-        Keys: list[int] = []
+        keys: list[int] = []
         try:
-            with open(file, "r") as Key_file:
-                Keys = Key_file.read().splitlines()[:5]
-                Key_file.close()
+            with open(file, "r") as keyFile:
+                keys = keyFile.read().splitlines()[:5]
+                keyFile.close()
 
         except FileNotFoundError or UnicodeDecodeError:
-            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Schlüsseldatei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
 
         # Test Key
-        if not self.test_key((Keys[:5])):
+        if not self.test_key((keys[:5])):
             print(f"{Fore.RED}Ungültiger Schlüssel oder Ungültige Schlüsseldatei!{Style.RESET_ALL}")
             return self.load_key(True)
 
         # return D, E, n
-        return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
+        return (keys.pop(4), keys.pop(3), keys.pop(2))
 
 
-    def only_public_test(self, key) -> bool:
+    def only_public_test(self, key: tuple[int | str]) -> bool:
         for k in key[2:4]:
             if k and k.isdigit():
                 continue
@@ -188,30 +193,29 @@ class RSA_Verfahren:
         self.modes[1], self.modes[5], self.modes[3], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
         self.modes[0], self.modes[4], self.modes[2] = "ver", "verschlüsseln", "ver datei"
         print("\033[H\033[J", end="")
-        print(self.Optionen)
+        print(self.options)
 
         if self.debug:
             print(f"{Fore.GREEN}Öffentliche Schlüsseldatei gültig{Style.RESET_ALL}")
 
         print(f"{Fore.YELLOW}Nur öffentlicher Schlüssel geladen{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}Entschlüsseln wird deaktiviert{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}decrypt wird deaktiviert{Style.RESET_ALL}")
         return True
 
 
-    def load_big_key(self) -> None:
-        """edits sys.setrecursionlimit and sys.set_int_max_str_digits to 1000000000\n
+    def load_big_key(self, setTo: int = 1000000000) -> None:
+        """edits sys.setrecursionlimit and sys.set_int_max_str_digits to a default of 1000000000\n
         :return None:"""
         print(f"{Fore.RED}Schlüssel zu groß!{Style.RESET_ALL}")
         print(f"{Fore.RED}Schalte um auf große Schlüssel!{Style.RESET_ALL}")
         if self.debug:
             print(f"{Fore.YELLOW}sys variablen werden geändert...{Style.RESET_ALL}""")
-        setTo: int = 1000000000
         sys.setrecursionlimit(setTo)
         sys.set_int_max_str_digits(setTo)
         print(f"{Fore.RED}Schlüsselauswahl bitte neu versuchen!{Style.RESET_ALL}")
 
 
-    def only_private_test(self, key) -> bool:
+    def only_private_test(self, key: tuple[int | str]) -> bool:
         for k in key[2:4]:
             if k and k.isdigit():
                 continue
@@ -221,7 +225,7 @@ class RSA_Verfahren:
         self.modes[0], self.modes[4], self.modes[2], self.modes[7], self.modes[9] = "n/a", "n/a", "n/a", "n/a", "n/a"
         self.modes[1], self.modes[5], self.modes[3] = "ent", "entschlüsseln", "ent datei"
         print("\033[H\033[J", end="")
-        print(self.Optionen)
+        print(self.options)
 
         if self.debug:
             print(f"{Fore.GREEN}Private Schlüsseldatei gültig{Style.RESET_ALL}")
@@ -240,13 +244,7 @@ class RSA_Verfahren:
         if key[0] == "Mode: Public": return self.only_public_test(key)
         if key[0] == "Mode: Private": return self.only_private_test(key)
         else:
-            self.modes = [
-            "Ver", "Ent", "Ver Datei", "Ent Datei",                        # RSA Richtig (Abkürzungen) (0-3)
-            "Verschlüsseln", "Entschlüsseln",                              # RSA Richtig (4-5)
-            "Sch Generieren", "Sch teilen", "Sch auswählen", "tauschen",   # RSA Zusatz  (6-9)
-            "Modi", "clear"                                                # RSA Quality of Life (10)
-            ]
-            self.fix_modes() # FIXME: Make this unnessesary
+            self.reset_modes()
 
         for k in key[2:5]:
             if k and k.isdigit():
@@ -259,8 +257,8 @@ class RSA_Verfahren:
             _, _, n, e, d = key
             testText = chr(255)
             entText = 255
-            verText = self.Ver_oder_Entschlüsseln(ord(testText), int(e), int(n))
-            entText = self.Ver_oder_Entschlüsseln(verText, int(d), int(n))
+            verText = self.en_or_decrypt(ord(testText), int(e), int(n))
+            entText = self.en_or_decrypt(verText, int(d), int(n))
             if entText != ord(testText):
                 return False
 
@@ -274,69 +272,69 @@ class RSA_Verfahren:
             return False
 
 
-    def get_Text(self) -> str:
-        """Method for returning encryptable Text that is compatable with the encryption method\n
-        :return str: Text that would not create an Error"""
-        Text = input('Zu verschlüsselnder Text(oder "quit"): ')
+    def get_text(self) -> str:
+        """Method for returning encryptable text that is compatable with the encryption method\n
+        :return str: text that would not create an Error"""
+        text = input('Zu verschlüsselnder Text(oder "quit"): ')
         forcefile = False
-        if not Text:
+        if not text:
             print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu kehren{Style.RESET_ALL}')
-            return self.get_Text()
+            return self.get_text()
 
-        if Text.lower() == "quit":
+        if text.lower() == "quit":
             return None, False
 
-        for Buchstabe in Text:
-            if ord(Buchstabe) < int(self.n):
+        for letter in text:
+            if ord(letter) < int(self.n):
                 continue
 
             print(f"{Fore.RED}Ascii der Buchstaben darf nicht größer als {self.n} sein!{Style.RESET_ALL}")
-            return self.get_Text()
+            return self.get_text()
 
-        if Text.startswith(self.forcefilecreation_keyword):
-            Text = Text.lstrip(self.forcefilecreation_keyword)
+        if text.startswith(self.forceFilecreationKeyword):
+            text = text.lstrip(self.forceFilecreationKeyword)
             forcefile = True
 
-        return Text, forcefile
+        return text, forcefile
 
 
-    def get_Text_Ent(self) -> list[int]:
-        """Method for returning decryptable Text that is compatable with the decryption method\n
+    def get_text_decrypt(self) -> list[int]:
+        """Method for returning decryptable text that is compatable with the decryption method\n
         :return list: The list of numbers that would be decrypted"""
-        Text = input('Text(Liste) oder "quit": ').replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
+        text = input('Text(Liste) oder "quit": ').replace("[", "").replace("'", "").replace("]", "").replace(" ", "")
         forcefile = False
 
-        if Text.lower() == "quit":
+        if text.lower() == "quit":
             return None, False
 
-        if not Text:
+        if not text:
             print(f'{Fore.RED}Bitte geben sie einen Text ein! Oder schreiben sie "quit" um zurück zu kehren{Style.RESET_ALL}')
-            return self.get_Text_Ent()
+            return self.get_text_decrypt()
 
-        if Text.startswith(self.forcefilecreation_keyword):
-            Text = Text.lstrip(self.forcefilecreation_keyword)
+        if text.startswith(self.forceFilecreationKeyword):
+            text = text.lstrip(self.forceFilecreationKeyword)
             forcefile = True
 
-        Text = Text.split(",")
-        for Zahl in Text:
+        text = text.split(",")
+        for Zahl in text:
             if Zahl.isdigit():
                 if int(Zahl) < int(self.n):
                     continue
 
             print(f"{Fore.RED}Eingabe muss eine Liste von ganzen Zahlen unter {self.n} sein!{Style.RESET_ALL}")
-            return self.get_Text_Ent()
+            return self.get_text_decrypt()
 
-        return Text, forcefile
+        return text, forcefile
 
 
-    def Verschlüsseln(self, Text: str) -> list[int]:
-        """Takes a Text as a paramatar and returns the encryption of that text\n
-        :param str Text: The text that will be encrypted
-        :return list: The encrypted Text in the form of a list"""
+    def encrypt(self, text: str) -> list[int]:
+        """Takes a text as a paramatar and returns the encryption of that text\n
+        :param str text: The text that will be encrypted
+        :return list: The encrypted text in the form of a list"""
         NeuText: list[int] = []
         try:
-            for Buchstabe in tqdm(Text, leave=False):
-                NeuText.append(self.Ver_oder_Entschlüsseln(ord(Buchstabe), int(self.E), int(self.n)))
+            for letter in tqdm(text, leave=False):
+                NeuText.append(self.en_or_decrypt(ord(letter), int(self.E), int(self.n)))
 
         except KeyboardInterrupt:
             print(f"{Fore.RED}Verschlüsselung abgebrochen{Style.RESET_ALL}")
@@ -346,14 +344,14 @@ class RSA_Verfahren:
         return NeuText
 
 
-    def Entschlüsseln(self, Text: list[int]):
-        """Takes a Text as a paramatar and returns the decryption of that text\n
-        :param list Text: The text that will be decrypted
-        :return str: The encrypted Text in the form of a string"""
+    def decrypt(self, text: list[int]) -> str:
+        """Takes a text as a paramatar and returns the decryption of that text\n
+        :param list text: The text that will be decrypted
+        :return str: The encrypted text in the form of a string"""
         neutext: str = ""
         try:
-            for Zahl in tqdm(Text, leave=False):
-                neutext += chr(self.Ver_oder_Entschlüsseln(int(Zahl), int(self.D), int(self.n)))
+            for Zahl in tqdm(text, leave=False):
+                neutext += chr(self.en_or_decrypt(int(Zahl), int(self.D), int(self.n)))
 
         except KeyboardInterrupt:
             print(f"{Fore.RED}Entschlüsselung abgebrochen{Style.RESET_ALL}")
@@ -366,113 +364,113 @@ class RSA_Verfahren:
         return neutext
 
 
-    def verschlüsseln_Text(self) -> list[int]:
-        """Method for encrypting a inputted Text with the Public Key of the RSA method\n
-        :return list: The encrypted Text in the form of a list
+    def encrypt_text(self) -> list[int]:
+        """Method for encrypting a inputted text with the Public Key of the RSA method\n
+        :return list: The encrypted text in the form of a list
         :return float: Time nessasary for the encryption"""
-        Text, forcefile = self.get_Text()
-        startzeit = time.time()
-        if not Text and not forcefile:
+        text, forcefile = self.get_text()
+        startTime = time.time()
+        if not text and not forcefile:
             return None, 0.0
 
-        neutext = self.Verschlüsseln(Text)
-        zeit = time.time() - startzeit
+        neutext = self.encrypt(text)
+        timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(neutext, zeit, forcefile, "Ver")
+        return self.check_file_creation(neutext, timeNessesary, forcefile, "Ver")
 
 
-    def Verschlüsseln_Datei(self) -> list[int]:
+    def encrypt_file(self) -> list[int]:
         """Method for encrypting a text from a choosen file\n
-        :return list: The encrypted Text as a list
+        :return list: The encrypted text as a list
         :return float: Time nessasary for the encryption"""
         file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Datei auswählen")
         if not file:
             return None, 0.0
-        startzeit = time.time()
+        startTime = time.time()
         forcefile = False
         try:
             with open(file, "r") as FileToEncrypt:
-                Text = FileToEncrypt.read()
+                text = FileToEncrypt.read()
                 FileToEncrypt.close()
 
         except FileNotFoundError or UnicodeDecodeError:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
-            return self.Verschlüsseln_Datei()
+            return self.encrypt_file()
 
-        if not Text:
+        if not text:
             print(f"{Fore.RED}Die Datei hat keinen verschlüsselbaren Inhalt!{Style.RESET_ALL}")
-            return self.Verschlüsseln_Datei()
+            return self.encrypt_file()
 
-        elif Text.startswith(self.forcefilecreation_keyword):
-            Text = Text.lstrip(self.forcefilecreation_keyword)
+        elif text.startswith(self.forceFilecreationKeyword):
+            text = text.lstrip(self.forceFilecreationKeyword)
             forcefile = True
 
-        neutext = self.Verschlüsseln(Text)
-        zeit = time.time() - startzeit
+        neutext = self.encrypt(text)
+        timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(neutext, zeit, forcefile, "Ver")
+        return self.check_file_creation(neutext, timeNessesary, forcefile, "Ver")
 
 
-    def Entschlüsseln_Text(self) -> str:
+    def decrypt_text(self) -> str:
         """Method for decrypting a text\n
-        :return str: The decrypted Text as a string
+        :return str: The decrypted text as a string
         :return float: Time nessasary for the decryption"""
-        Text, forcefile = self.get_Text_Ent()
-        startzeit = time.time()
+        text, forcefile = self.get_text_decrypt()
+        startTime = time.time()
 
-        if not Text and not forcefile:
+        if not text and not forcefile:
             return None, 0.0
 
-        neutext = self.Entschlüsseln(Text)
-        zeit = time.time() - startzeit
+        neutext = self.decrypt(text)
+        timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(neutext, zeit, forcefile, "Ent")
+        return self.check_file_creation(neutext, timeNessesary, forcefile, "Ent")
 
 
-    def Entschlüsseln_Datei(self) -> str:
+    def decrypt_file(self) -> str:
         """Method for decrypting a text from a File\n
-        :return str: The decrypted Text as a string
+        :return str: The decrypted text as a string
         :return float: Time nessasary for the decryption"""
         file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"),("All Files", "*.*")], title="Datei auswählen")
         if not file:
             return None, 0.0
-        startzeit = time.time()
+        startTime = time.time()
         forcefile: bool = False
         try:
             with open(file, "r") as FileToDecrypt:
-                Text = FileToDecrypt.read()
+                text = FileToDecrypt.read()
                 FileToDecrypt.close()
 
         except FileNotFoundError or UnicodeDecodeError:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
-            return self.Entschlüsseln_Datei()
+            return self.decrypt_file()
 
-        if not Text:
+        if not text:
             print(f"{Fore.RED}Die Datei hat keinen entschlüsselbaren Inhalt!{Style.RESET_ALL}")
-            return self.Entschlüsseln_Datei()
+            return self.decrypt_file()
 
-        if Text.startswith(self.forcefilecreation_keyword):
-            Text = Text.lstrip(self.forcefilecreation_keyword)
+        if text.startswith(self.forceFilecreationKeyword):
+            text = text.lstrip(self.forceFilecreationKeyword)
             forcefile = True
 
-        Text = Text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
-        for Zahl in Text:
+        text = text.replace("[", "").replace("'", "").replace("]", "").replace(" ", "").split(",")
+        for Zahl in text:
             if Zahl.isdigit() and int(Zahl) < int(self.n):
                 continue
 
             print(f"{Fore.RED}Ungültige Liste in der Datei! Richtig wäre z.B.: [400, 200]{Style.RESET_ALL}")
-            return self.Entschlüsseln_Datei()
+            return self.decrypt_file()
 
-        NeuText: str = self.Entschlüsseln(Text)
-        zeit = time.time() - startzeit
+        NeuText: str = self.decrypt(text)
+        timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(NeuText, zeit, forcefile, "Ent")
+        return self.check_file_creation(NeuText, timeNessesary, forcefile, "Ent")
 
 
-    def Output_in_Datei_speichern(self, Text: str, Art: str = "RSA") -> None:
-        """Method for saving an de or encrypted Text in a .txt file\n
-        :param str Text: The Text that will be written into the file (str)
-        :param str Art: (Optional)defines if the file contains en or decrypted Text default is "RSA"
+    def save_output_in_file(self, text: str, Art: str = "RSA") -> None:
+        """Method for saving an de or encrypted text in a .txt file\n
+        :param str text: The text that will be written into the file (str)
+        :param str Art: (Optional)defines if the file contains en or decrypted text default is "RSA"
         :return None:"""
         dateiName = f"{Art}schlüsselter Output.txt"
         currentDir = os.path.dirname(sys.argv[0])
@@ -482,28 +480,28 @@ class RSA_Verfahren:
             file = os.path.join(currentDir, f"{Art}schlüsselter Output{i}.txt")
             i += 1
         with open(file, "w") as Output_File:
-            Output_File.write(Text)
+            Output_File.write(text)
             Output_File.close()
 
 
-    def check_file_creation(self, neuText, zeit, forceFile: bool, art: str = "RSA") -> str:
-        if not len(str(neuText)) >= self.FileThreshhold and not forceFile:
-            return neuText, zeit
+    def check_file_creation(self, neuText, timeNessesary, forceFile: bool, art: str = "RSA") -> str:
+        if not len(str(neuText)) >= self.fileThreshhold and not forceFile:
+            return neuText, timeNessesary
 
-        if len(str(neuText)) >= self.FileThreshhold ** 2 or input("Text in einer Datei speichern?(y/n): ") == "y":
-            self.Output_in_Datei_speichern(str(neuText), art)
-            return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", zeit
+        if len(str(neuText)) >= self.fileThreshhold ** 2 or input("Text in einer Datei speichern?(y/n): ") == "y":
+            self.save_output_in_file(str(neuText), art)
+            return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", timeNessesary
 
-        return neuText, zeit
+        return neuText, timeNessesary
 
 
 if __name__ == "__main__":
     try:
         from main import argv_check
-        Debug = argv_check()
-    except ImportError: Debug = False
+        debug = argv_check(sys.argv)
+    except ImportError: debug = False
 
-    Programm = RSA_Verfahren(debug=Debug)
+    Programm = RSA_Verfahren(debug=debug)
     running = True
     while running:
-        running = Programm.Get_mode()
+        running = Programm.get_mode()

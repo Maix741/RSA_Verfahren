@@ -14,33 +14,32 @@ class Split_Keys:
     def load_key(self, dialog: bool = False) -> tuple[int]:
         """Method for loading all nessacary Key Fragments\n
         :param bool dialog: if True the path to the Key file will be choosen with a filedialog
-        :return tuple: Key fragments D, E, n
-        """
-        currentdirectory = os.path.dirname(sys.argv[0])
-        file: str = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
+        :return tuple: Key fragments D, E, n"""
+        currentDirectory = os.path.dirname(sys.argv[0])
+        file: str = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
         if dialog:
-            file = filedialog.askopenfilename(initialdir=os.path.dirname(sys.argv[0]), filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
+            file = filedialog.askopenfilename(initialdir=currentDirectory, filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
                 if input("Schlüssel generieren?(y/n): ") == "y":
                     Generator = Generate_Keys()
                     p, q, n, e, d = Generator.generate_keys()
-                    if input("Dtei erstellen?(y/n): ").lower().strip() == "n":
+                    if input("Datei erstellen?(y/n): ").lower().strip() == "n": # TODO: less nesting
                         return (d, e, n)
-                    Generator.write_Keys(p, q, n, e, d)
-                file = os.path.join(currentdirectory, "KEYS", "RSA_Key.txt")
+                    file = Generator.write_Keys((p, q, n, e, d))
+                else: file = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
 
-        Keys: list[int] = []
+        keys: list[int] = []
         try:
-            with open(file, "r") as Key_file:
-                Keys = Key_file.read().splitlines()[:5]
-                Key_file.close()
+            with open(file, "r") as keyFile:
+                keys = keyFile.read().splitlines()[:5]
+                keyFile.close()
 
-        except FileNotFoundError and UnicodeDecodeError:
-            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
+        except FileNotFoundError or UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Schlüsseldatei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
         # return D, E, n
-        return (Keys.pop(4), Keys.pop(3), Keys.pop(2))
+        return (keys.pop(4), keys.pop(3), keys.pop(2))
 
 
     def create_Folder_structure(self, rootDir: str) -> None:
@@ -62,20 +61,16 @@ class Split_Keys:
 
 
     def write_Public(self, n: int, e: int, pathForFolder: str) -> None:
-        Publicfile = os.path.join(pathForFolder, "RSA_Geteilt", "PUBLIC", "PUBLIC_Key.txt")
+        Publicfile = os.path.join(pathForFolder, "RSA_Geteilt", "PUBLIC", "PUBLIC_Key.key")
         with open(Publicfile, "w") as Public:
             Public.write(f"Mode: Public\n\n{n}\n{e}\n\n# n, E")
-            # Public.write(f"{n}\n{e}\n\n# n, E")
-            # Public.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(e)}\n{str(0)}\n\n# p, q, n, E, D")
             Public.close()
 
 
     def write_Private(self, n: int, d: int, pathForFolder: str) -> None:
-        Privatefile = os.path.join(pathForFolder, "RSA_Geteilt", "PRIVATE", "PRIVATE_Key.txt")
+        Privatefile = os.path.join(pathForFolder, "RSA_Geteilt", "PRIVATE", "PRIVATE_Key.key")
         with open(Privatefile, "w") as Private:
             Private.write(f"Mode: Private\n\n{n}\n{d}\n\n# n, D")
-            # Private.write(f"{n}\n{d}\n\n# n, D")
-            # Private.write(f"{str(0)}\n{str(0)}\n{str(n)}\n{str(0)}\n{str(d)}\n\n# p, q, n, E, D")
             Private.close()
 
 
