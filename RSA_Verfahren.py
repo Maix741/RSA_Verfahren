@@ -16,7 +16,7 @@ class RSA_Verfahren:
     :param bool debug: Enable debug mode for viewing nessesary time for en- and decrypting
     :return None:"""
     def __init__(self,
-                 dialog: bool = False, FileThreshhold: int = 200, forcefilecreation_keyword: str = "/DateiEr", debug: bool = False
+                 dialog: bool = False, debug: bool = False, FileThreshhold: int = 500, forcefilecreation_keyword: str = "/DateiEr"
                 ) -> None:
         self.debug: bool = debug
         self.fileThreshhold: int = FileThreshhold # set object variables
@@ -66,7 +66,7 @@ class RSA_Verfahren:
             print({"D": self.D, "E": self.E, "n": self.n})
 
         if selectedMode not in self.modes or selectedMode == "n/a":
-            print(f"{Fore.RED}Ungültiger selectedMode!{Style.RESET_ALL}")
+            print(f"{Fore.RED}Ungültiger Modus!{Style.RESET_ALL}")
             return True
 
 
@@ -76,14 +76,14 @@ class RSA_Verfahren:
             if encryptedText:
                 print(f"\n{encryptedText}\n") # TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {timeNessesary}{Style.RESET_ALL}")
 
         elif selectedMode == self.modes[2]:
             encryptedText, timeNessesary = self.encrypt_file()
             if encryptedText:
                 print(f"\n{encryptedText}\n") # TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Verschlüsseln: {timeNessesary}{Style.RESET_ALL}")
 
 
         # ent, entschlüsseln | ent_datei
@@ -92,14 +92,14 @@ class RSA_Verfahren:
             if decryptedText:
                 print(f"\n{decryptedText}\n")# TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Entschlüsseln: {timeNessesary}{Style.RESET_ALL}")
 
         elif selectedMode == self.modes[3]:
             decryptedText, timeNessesary = self.decrypt_file()
             if decryptedText:
                 print(f"\n{decryptedText}\n")# TODO: Do more with text
             if self.debug:
-                print(f"{Fore.YELLOW}Zeit zum encrypt: {timeNessesary}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Zeit zum Entschlüsseln: {timeNessesary}{Style.RESET_ALL}")
 
 
         # generate_keys
@@ -139,9 +139,9 @@ class RSA_Verfahren:
 
     def en_or_decrypt(self, text: int, key: int, n: int) -> int:
         """Method for encrypting and decrypting with RSA\n
-        :param int text: ASCII of a character (int)
-        :param int Schlüssel: RSA Key (ether D or E) (int)\n
-        :param int n: RSA Key fragment n (int)\n
+        :param int text: ASCII of a character
+        :param int key: RSA Key (either D or E)
+        :param int n: RSA Key fragment n
         :return int: encrypted or decrypted text"""
         return pow(text, key, n)
 
@@ -199,7 +199,7 @@ class RSA_Verfahren:
             print(f"{Fore.GREEN}Öffentliche Schlüsseldatei gültig{Style.RESET_ALL}")
 
         print(f"{Fore.YELLOW}Nur öffentlicher Schlüssel geladen{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}decrypt wird deaktiviert{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}Entschlüsseln wird deaktiviert{Style.RESET_ALL}")
         return True
 
 
@@ -240,7 +240,7 @@ class RSA_Verfahren:
         Tests if the key is a number and\n
         if de and encrypting works\n
         :param key tuple: The Key as a tuple
-        :return validKey bool: returns True if the Key is valid"""
+        :return validKey: returns True if the Key is valid"""
         if key[0] == "Mode: Public": return self.only_public_test(key)
         if key[0] == "Mode: Private": return self.only_private_test(key)
         else:
