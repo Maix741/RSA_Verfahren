@@ -153,12 +153,12 @@ class RSA_Verfahren:
         currentDirectory = os.path.dirname(sys.argv[0])
         file: str = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
         if dialog:
-            file = filedialog.askopenfilename(initialdir=currentDirectory, filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")], title="Key Datei auswählen")
+            file = filedialog.askopenfilename(initialdir=currentDirectory, filetypes=[("Key Files", "*.key"), ("All Files", "*.*")], title="Key Datei auswählen")
             if not file:
-                if input("Schlüssel generieren?(y/n): ") == "y":
+                if input("Schlüssel generieren?(y/n): ").lower() == "y":
                     Generator = Generate_Keys()
                     p, q, n, e, d = Generator.generate_keys()
-                    if input("Datei erstellen?(y/n): ").lower().strip() == "n": # TODO: less nesting
+                    if input("Datei erstellen?(y/n): ").lower() != "y": # TODO: less nesting
                         return (d, e, n)
                     file = Generator.write_Keys((p, q, n, e, d))
                 else: file = os.path.join(currentDirectory, "KEYS", "RSA_Key.key")
@@ -270,6 +270,8 @@ class RSA_Verfahren:
                 print(f"{Fore.GREEN}Schlüsseldatei gültig{Style.RESET_ALL}")
                 print(f"{Fore.GREEN}Testzeit war: {time.time() - startTest}{Style.RESET_ALL}")
             return True
+        
+        except KeyboardInterrupt: return True
 
         except ValueError:
             self.load_big_key()
@@ -352,20 +354,20 @@ class RSA_Verfahren:
         """Takes a text as a paramatar and returns the decryption of that text\n
         :param list text: The text that will be decrypted
         :return str: The encrypted text in the form of a string"""
-        neutext: str = ""
+        decryptedText: str = ""
         try:
             for Zahl in tqdm(text, leave=False):
-                neutext += chr(self.en_or_decrypt(int(Zahl), int(self.D), int(self.n)))
+                decryptedText += chr(self.en_or_decrypt(int(Zahl), int(self.D), int(self.n)))
 
         except KeyboardInterrupt:
             print(f"{Fore.RED}Entschlüsselung abgebrochen{Style.RESET_ALL}")
             print(f"{Fore.RED}Momentaner Vortschritt zurückgegeben{Style.RESET_ALL}")
-            return neutext
+            return decryptedText
 
         except Exception:
             return f"{Fore.RED}Liste oder Schlüssel ungültig{Style.RESET_ALL}"
 
-        return neutext
+        return decryptedText
 
 
     def encrypt_text(self) -> list[int]:
@@ -377,10 +379,10 @@ class RSA_Verfahren:
         if not text and not forcefile:
             return None, 0.0
 
-        neutext = self.encrypt(text)
+        encryptedText = self.encrypt(text)
         timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(neutext, timeNessesary, forcefile, "Ver")
+        return self.check_file_creation(encryptedText, timeNessesary, forcefile, "Ver")
 
 
     def encrypt_file(self) -> list[int]:
@@ -413,10 +415,10 @@ class RSA_Verfahren:
             text = text.lstrip(self.forceFilecreationKeyword)
             forcefile = True
 
-        neutext = self.encrypt(text)
+        encryptedText = self.encrypt(text)
         timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(neutext, timeNessesary, forcefile, "Ver")
+        return self.check_file_creation(encryptedText, timeNessesary, forcefile, "Ver")
 
 
     def decrypt_text(self) -> str:
@@ -429,10 +431,10 @@ class RSA_Verfahren:
         if not text and not forcefile:
             return None, 0.0
 
-        neutext = self.decrypt(text)
+        decryptedText = self.decrypt(text)
         timeNessesary = time.time() - startTime
 
-        return self.check_file_creation(neutext, timeNessesary, forcefile, "Ent")
+        return self.check_file_creation(decryptedText, timeNessesary, forcefile, "Ent")
 
 
     def decrypt_file(self) -> str:
@@ -496,15 +498,15 @@ class RSA_Verfahren:
             Output_File.close()
 
 
-    def check_file_creation(self, neuText, timeNessesary, forceFile: bool, art: str = "RSA") -> str:
-        if not len(str(neuText)) >= self.fileThreshhold and not forceFile:
-            return neuText, timeNessesary
+    def check_file_creation(self, newText, timeNessesary, forceFile: bool, art: str = "RSA") -> str:
+        if not len(str(newText)) >= self.fileThreshhold and not forceFile:
+            return newText, timeNessesary
 
-        if len(str(neuText)) >= self.fileThreshhold ** 2 or input("Text in einer Datei speichern?(y/n): ") == "y":
-            self.save_output_in_file(str(neuText), art)
+        if len(str(newText)) >= self.fileThreshhold ** 5 or input("Text in einer Datei speichern?(y/n): ").lower() == "y":
+            self.save_output_in_file(str(newText), art)
             return f"{Fore.GREEN}Die Entschlüsselte Nachricht wurde erfolgreich in einer Datei gespeichert!{Style.RESET_ALL}", timeNessesary
 
-        return neuText, timeNessesary
+        return newText, timeNessesary
 
 
 if __name__ == "__main__":
