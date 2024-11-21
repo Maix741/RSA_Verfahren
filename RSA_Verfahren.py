@@ -169,7 +169,11 @@ class RSA_Verfahren:
                 keys = keyFile.read().splitlines()[:5]
                 keyFile.close()
 
-        except FileNotFoundError or UnicodeDecodeError:
+        except UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Schlüsseldatei: {file}{Style.RESET_ALL}")
+            return self.load_key(True)
+
+        except FileNotFoundError:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Schlüsseldatei: {file}{Style.RESET_ALL}")
             return self.load_key(True)
 
@@ -393,7 +397,11 @@ class RSA_Verfahren:
                 text = FileToEncrypt.read()
                 FileToEncrypt.close()
 
-        except FileNotFoundError or UnicodeDecodeError:
+        except UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
+            return self.encrypt_file()
+
+        except FileNotFoundError:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.encrypt_file()
 
@@ -441,7 +449,11 @@ class RSA_Verfahren:
                 text = FileToDecrypt.read()
                 FileToDecrypt.close()
 
-        except FileNotFoundError or UnicodeDecodeError:
+        except UnicodeDecodeError:
+            print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
+            return self.decrypt_file()
+
+        except FileNotFoundError:
             print(f"{Fore.RED}Es gab einen Fehler beim Lesen der Datei: {file}{Style.RESET_ALL}")
             return self.decrypt_file()
 
